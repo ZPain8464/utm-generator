@@ -65,3 +65,8 @@
   .copy-clear_buttons {
     padding-right: 10px;
   }
+
+  #dropdown_menu, option, select {
+    text-align: left;
+    width: 100%;
+  }

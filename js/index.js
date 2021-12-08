@@ -5,15 +5,16 @@ const getFormData = (event) => {
     const medium = document.getElementById("medium").value;
     const content = document.getElementById("content").value;
     const campaign = document.getElementById("campaign_name").value;
+    const promoType = document.getElementById("promotion_type")
+    .options[document.getElementById('promotion_type').selectedIndex].text;
     
-    // getTLS(url);
-
     const formData = {
         url, 
         source, 
         medium, 
         content, 
         campaign, 
+        promoType
     }
 
     handleFormData(formData);
@@ -24,8 +25,18 @@ const form = document.getElementById("utm_form");
 form.addEventListener("submit", getFormData);
 
 const handleFormData = (f) => {
-    const baseURL = f.url;
-    getTLS(baseURL);
+
+    // create base url
+    const url = f.url;
+    getTLS(url);
+    const baseUrl = getTLS(url);
+
+    // handle promotion type
+    const promoType = f.promoType;
+    const promoParam = promoType.replace(/ /g,"_")
+    
+    const generatedUrl = baseUrl + '?' + 'utm_promotion=' + promoParam;
+    generateUrl(generatedUrl)
 } 
 
 const getTLS = (url) => {
@@ -33,9 +44,11 @@ const getTLS = (url) => {
     const tls = 'https://';
     if(!url.includes(tls)) {
         const tlsUrl = tls + url;
-        return generateUrl(tlsUrl);
+        // return generateUrl(tlsUrl);
+        return tlsUrl;
         }
-    return generateUrl(url);
+    // return generateUrl(url);
+    return url;
 }
 
 // Button functions
