@@ -11,21 +11,22 @@
     <h1>UTM Link Generator</h1>
     <div class="form_container">
         <form id="utm_form">
-            <label name="base_url" for="base_url">Base URL:</label>
-            <input type="text" id="base_url" name="base_url" placeholder="https://getstream.io"/>
+            <span id="required_message"><p>Fields marked '*' are required</p></span>
+            <label name="base_url" for="base_url">Base URL:*</label>
+            <input type="text" id="base_url" name="base_url" placeholder="https://getstream.io" required/>
             <label id="source_field" name="source" for="source">Source: </label>
             <input id="source" name="source" type="text" placeholder="google, newsletter" />
             <label for="promotion_type">Promotion Type:</label>
             <div id="dropdown_menu">
-            <select placeholder="Choose Promotion Type" name="promotion_type" id="promotion_type">
-                <div id="dropdown_content">
-                    <option value="" disabled selected>Choose Promotion Type</option>
-                    <option value="virtual_event">Virtual Event</option>
-                    <option value="live_event">Live Event</option>
-                    <option value="sponsored_content">Sponsored Content</option>
-                    <option value="sponsored_ads">Sponsored Ads</option>
-                </div>
-            </select>
+                <select name="promotion_type" id="promotion_type" required>
+                    <div id="dropdown_content">
+                        <option value="none" selected>Choose Promotion Type</option>
+                        <option value="virtual_event">Virtual Event</option>
+                        <option value="live_event">Live Event</option>
+                        <option value="sponsored_content">Sponsored Content</option>
+                        <option value="sponsored_ads">Sponsored Ads</option>
+                    </div>
+                </select>
             </div>
             <label name="medium" for="medium">Medium: </label>
             <input id="medium" name="medium" type="text" placeholder="banner, email"/>

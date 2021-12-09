@@ -70,3 +70,7 @@
     text-align: left;
     width: 100%;
   }
+
+  #required_message {
+    text-align: left;
+  }
