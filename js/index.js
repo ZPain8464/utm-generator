@@ -1,5 +1,5 @@
 // https://ga-dev-tools.web.app/campaign-url-builder/
-// TODO: Handle adding '?' or '&' to url string once all data is submitted
+// TODO: Handle source, medium, content form fields
 const getFormData = (event) => {
     event.preventDefault();
     const url = document.getElementById("base_url").value;
@@ -38,12 +38,24 @@ const handleFormData = (f) => {
 
     // generate final url 
     if(promoParam === null && campaignParam === null) {
-        // If promo field is default value, don't include in url string
         generateUrl(baseUrl);
         return;
     }
-    const generatedUrl = baseUrl + promoParam + campaignParam;
-    generateUrl(generatedUrl)
+
+    if(promoParam === null && campaignParam != null) {
+        const urlString = baseUrl + '?' + campaignParam;
+        generateUrl(urlString);
+        return;
+    }
+
+    if(promoParam != null && campaignParam === null) {
+        const urlString = baseUrl + '?' + promoParam;
+        generateUrl(urlString);
+        return;
+    }
+
+    const urlString = baseUrl + '?' + promoParam + '&' + campaignParam;
+    generateUrl(urlString)
 } 
 
 ///// Form Field Data /////
@@ -65,7 +77,7 @@ const handlePromo = (promo) => {
     }
 
     const formatData = promo.replace(/ /g, "_");
-    const parameter = '?' + 'utm_promotion=' + formatData
+    const parameter =  'utm_promotion=' + formatData
     return parameter;
 }
 
@@ -75,7 +87,7 @@ const handleCampaign = (c) => {
     }
     // TODO: Capitalize first letter of each word
     const formatData = c.replace(/ /g, "_");
-    const parameter = '&' + 'utm_campaign=' + formatData;
+    const parameter =  'utm_campaign=' + formatData;
     return parameter;
 }
 
