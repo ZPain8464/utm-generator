@@ -1,20 +1,26 @@
 // https://ga-dev-tools.web.app/campaign-url-builder/
-// TODO: Handle source, medium, content form fields
+/**
+ * TODO: Handle export data function
+ */
 const getFormData = (event) => {
     event.preventDefault();
+    const fullName = document.getElementById("full_name").value;
+    const email = document.getElementById("email").value;
     const url = document.getElementById("base_url").value;
     const source = document.getElementById("source").value;
+    const searchTerm = document.getElementById("search_term").value;
     const medium = document.getElementById("medium").value;
-    const content = document.getElementById("content").value;
     const campaign = document.getElementById("campaign_name").value;
     const promoType = document.getElementById("promotion_type")
     .options[document.getElementById('promotion_type').selectedIndex].text;
     
     const formData = {
+        fullName,
+        email,
         url, 
         source, 
+        searchTerm,
         medium, 
-        content, 
         campaign, 
         promoType
     }
@@ -26,41 +32,47 @@ const form = document.getElementById("utm_form");
 form.addEventListener("submit", getFormData);
 
 const handleFormData = (f) => {
-
-    // create base url
     const baseUrl = getTLS(f.url);
-
-    // handle promotion type
     const promoParam = handlePromo(f.promoType);
-
-    // handle campaign name
-    const campaignParam = handleCampaign(f.campaign)
-
-    // generate final url 
-    if(promoParam === null && campaignParam === null) {
-        generateUrl(baseUrl);
-        return;
+    const sourceParam = handleSource(f.source);
+    const campaignParam = handleCampaign(f.campaign);
+    const mediumParam = handleMedium(f.medium);
+    const termParam = handleTerm(f.searchTerm);
+    
+    if(termParam === null && promoParam === null) {
+        let urlString = baseUrl + '?' + sourceParam + '&' + campaignParam + '&' + mediumParam;
+        const formattedUrl = urlString.toLowerCase();
+        const sheetData = {name: f.fullName, email: f.email, url: formattedUrl}
+        exportData(sheetData);
+        return generateUrl(formattedUrl);
     }
 
-    if(promoParam === null && campaignParam != null) {
-        const urlString = baseUrl + '?' + campaignParam;
-        generateUrl(urlString);
-        return;
+    if(termParam === null) {
+        console.log("term null");
+        let urlString = baseUrl + '?' + sourceParam + '&' + campaignParam + '&' + mediumParam + '&' + promoParam;
+        const formattedUrl = urlString.toLowerCase();
+        const sheetData = {name: f.fullName, email: f.email, url: formattedUrl}
+        exportData(sheetData);
+        return generateUrl(formattedUrl); 
+    }
+    
+    if(promoParam === null) {
+        console.log("promo null");
+        let urlString = baseUrl + '?' + sourceParam + '&' + campaignParam + '&' + mediumParam + '&' + termParam;
+        const formattedUrl = urlString.toLowerCase();
+        const sheetData = {name: f.fullName, email: f.email, url: formattedUrl}
+        exportData(sheetData);
+        return generateUrl(formattedUrl); 
     }
 
-    if(promoParam != null && campaignParam === null) {
-        const urlString = baseUrl + '?' + promoParam;
-        generateUrl(urlString);
-        return;
-    }
-
-    const urlString = baseUrl + '?' + promoParam + '&' + campaignParam;
-    generateUrl(urlString)
+    let urlString = baseUrl + '?' + sourceParam + '&' + campaignParam + '&' + mediumParam + '&' + termParam + '&' + promoParam;
+    const formattedUrl = urlString.toLowerCase();
+    const sheetData = {name: f.fullName, email: f.email, url: formattedUrl}
+    exportData(sheetData);
+    generateUrl(formattedUrl);
 } 
 
 ///// Form Field Data /////
-
-// Adds TLS to base url if not included in form
 const getTLS = (url) => {
     const tls = 'https://';
     if(!url.includes(tls)) {
@@ -70,25 +82,46 @@ const getTLS = (url) => {
     return url;
 }
 
-// Formats promo type to url parameter 
 const handlePromo = (promo) => {
     if(promo === "Choose Promotion Type") {
         return null;
     }
-
     const formatData = promo.replace(/ /g, "_");
     const parameter =  'utm_promotion=' + formatData
     return parameter;
 }
 
 const handleCampaign = (c) => {
-    if(c === "") {
-        return null;
-    }
-    // TODO: Capitalize first letter of each word
     const formatData = c.replace(/ /g, "_");
     const parameter =  'utm_campaign=' + formatData;
     return parameter;
+}
+
+const handleSource = (s) => {
+    const formatData = s.replace(/ /g, "_");
+    const parameter =  'utm_source=' + formatData;
+    return parameter;
+}
+
+const handleMedium = (m) => {
+    const formatData = m.replace(/ /g, "_");
+    const parameter =  'utm_medium=' + formatData;
+    return parameter;
+}
+
+const handleTerm = (t) => {
+    if(t === "") {
+        return null;
+    }
+    const formatData = t.replace(/ /g, "_");
+    const parameter =  'utm_term=' + formatData
+    return parameter;
+}
+
+///// Export to Google Sheets /////
+const exportData = (data) => {
+    // TODO: Get Date(), export to GoogleSheets
+    console.log(data)
 }
 
 ///// Button Functions /////
