@@ -1,17 +1,20 @@
 // https://ga-dev-tools.web.app/campaign-url-builder/
 /**
- * TODO: Handle export data function
- *
  * TODO: Add 'Content' field --> (not required)
  * TODO: Confirm what fields we definitely need and don't need with Marketing
+ * TODO: If generated link isn't changed, don't add to GoogleSheet
+ * TODO: Package into Chrome extension 
+ * TODO: Sign out --> resets form 
+ * TODO: Add modal to confirm url is correct before writing to Google Sheet
  */
 
-// Removed secrets for now
+// removed secrets
 
  const authorizeButton = document.getElementById('authorize_button');
  const signoutButton = document.getElementById('signout_button');
  const formField = document.getElementById("form_container");
  const urlField = document.getElementById("generated_url-container");
+
  function handleClientLoad() {
     gapi.load('client:auth2', initClient);
     
@@ -32,7 +35,7 @@
       authorizeButton.onclick = handleAuthClick;
       signoutButton.onclick = handleSignoutClick;
     }, function(error) {
-      appendPre(JSON.stringify(error, null, 2));
+       console.log(error)
     });
   }
 
@@ -59,27 +62,6 @@
     gapi.auth2.getAuthInstance().signOut();
     formField.style.display = "none";
     urlField.style.display = "none";
-  }
-
-  function listMajors() {
-    gapi.client.sheets.spreadsheets.values.get({
-      spreadsheetId: '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms',
-      range: 'Class Data!A2:E',
-    }).then(function(response) {
-      var range = response.result;
-      if (range.values.length > 0) {
-        appendPre('Name, Major:');
-        for (i = 0; i < range.values.length; i++) {
-          var row = range.values[i];
-          // Print columns A and E, which correspond to indices 0 and 4.
-          appendPre(row[0] + ', ' + row[4]);
-        }
-      } else {
-        appendPre('No data found.');
-      }
-    }, function(response) {
-      appendPre('Error: ' + response.result.error.message);
-    });
   }
 
 const getFormData = (event) => {
@@ -120,33 +102,29 @@ const handleFormData = (f) => {
 
     if(termParam === null && promoParam === null) {
         let urlString = baseUrl + '?' + sourceParam + '&' + campaignParam + '&' + mediumParam;
-        const formattedUrl = urlString
-        const sheetData = {url: formattedUrl, purpose: purpose}
+        const sheetData = {url: urlString, purpose: purpose}
         exportData(sheetData);
-        return generateUrl(formattedUrl);
+        return generateUrl(urlString);
     }
 
     if(termParam === null) {
         let urlString = baseUrl + '?' + sourceParam + '&' + campaignParam + '&' + mediumParam + '&' + promoParam;
-        const formattedUrl = urlString
-        const sheetData = {url: formattedUrl, purpose: purpose}
+        const sheetData = {url: urlString, purpose: purpose}
         exportData(sheetData);
-        return generateUrl(formattedUrl); 
+        return generateUrl(urlString); 
     }
     
     if(promoParam === null) {
         let urlString = baseUrl + '?' + sourceParam + '&' + campaignParam + '&' + mediumParam + '&' + termParam;
-        const formattedUrl = urlString
-        const sheetData = {url: formattedUrl, purpose: purpose}
+        const sheetData = {url: urlString, purpose: purpose}
         exportData(sheetData);
-        return generateUrl(formattedUrl); 
+        return generateUrl(urlString); 
     }
 
     let urlString = baseUrl + '?' + sourceParam + '&' + campaignParam + '&' + mediumParam + '&' + termParam + '&' + promoParam;
-    const formattedUrl = urlString
-    const sheetData = {url: formattedUrl, purpose: purpose}
+    const sheetData = {url: urlString, purpose: purpose}
     exportData(sheetData);
-    generateUrl(formattedUrl);
+    generateUrl(urlString);
 } 
 
 ///// Form Field Data /////
@@ -216,17 +194,43 @@ const handleTerm = (t) => {
 }
 
 ///// Export to Google Sheets /////
-const exportData = (data) => {
-  //TODO: Handle Date();
+const exportData = async (data) => {
+  // TODO: Handle Date() to locale time
   const currentUser = gapi.auth2.getAuthInstance().currentUser.get();
-  const fullName = currentUser.getBasicProfile().getName();
+  const name = currentUser.getBasicProfile().getName();
   const email = currentUser.getBasicProfile().getEmail();
+  const purpose = data.purpose;
+  const url = data.url;
+  const date = "123";
 
-  gapi.client.sheets.spreadsheets.values.get({
+  const rows = await gapi.client.sheets.spreadsheets.values.get({
     spreadsheetId: '1qNGvs-V-EOgpuWprdABIGRaZASLihNc0GKX6kVZmBIU',
-    range: 'UTM Link Tracking Sheet!A1:A2',
+    range: 'UTM Link Tracking Sheet!A1:E50',
   }).then(function(response) {
-    console.log(response.range);
+    return response.result;
+  });
+  
+  let index = rows.values.findIndex(row => row.length === 0);
+  const range = index += 1;
+
+  let values = [
+    [
+      name,
+      email,
+      date,
+      purpose,
+      url
+    ]
+  ];
+  const body = {values: values};
+
+  gapi.client.sheets.spreadsheets.values.update({
+    spreadsheetId: '1qNGvs-V-EOgpuWprdABIGRaZASLihNc0GKX6kVZmBIU',
+    range: `UTM Link Tracking Sheet!A${range}:E${range}`,
+    valueInputOption: 'RAW',
+    resource: body
+  }).then(function(response) {
+    console.log(response)
   })
 }
 
