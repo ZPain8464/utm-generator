@@ -9,12 +9,12 @@
 </head>
 <body>
     <h1>UTM Link Generator</h1>
-    <div class="form_container">
+    <div id="auth_buttons">
+        <button id="authorize_button" style="display: none;">Authorize</button>
+        <button id="signout_button" style="display: none;">Sign Out</button>
+    </div>
+    <div class="form_container" id="form_container" style="display: none;">
         <form id="utm_form">
-            <label name="full_name" for="full_name">Full Name: (required)</label>
-            <input type="text" id="full_name" name="full_name" placeholder="First Last" required/>
-            <label name="email" for="email">Email: (required)</label>
-            <input type="text" id="email" name="email" placeholder="example@getstream.io" required/>
             <label name="base_url" for="base_url">Base URL: (required)</label>
             <input type="text" id="base_url" name="base_url" placeholder="https://getstream.io" required/>
             <label name="source" for="source">Source: (required) </label>
@@ -37,23 +37,31 @@
             <input id="medium" name="medium" type="text" placeholder="banner, email" required/>
             <label name="campaign_name" for="campaign_name">Campaign Name: (required)</label>
             <input id="campaign_name" name="campaign_name" type="text" placeholder="Flutter Vikings" required/>
+            <label name="purpose" for="purpose">Purpose: (required)</label>
+            <input id="purpose" name="purpose" type="text" placeholder="Track # of clicks" required/>
             <button type="submit">Create UTM Link</button>
         </form>
     </div>
-    <div class="generated_url-container">
+    <div class="generated_url-container" id="generated_url-container" style="display: none;">
+        <!-- <div id="url_textfield"> -->
         <h3>Generated URL:</h3>
-        <div id="generated_url-field">
-            <textarea id="url-string"></textarea>
-        </div>
-        <div class="copy_clear-container">
-            <div class="copy_clear-buttons">
-                <button onclick="copyURL()">Copy</button>
+            <div id="generated_url-field">
+                <textarea id="url-string"></textarea>
             </div>
-            <div class="copy_clear-buttons">
-                <button id="clear" onclick="clearField()">Clear</button>
+            <div class="copy_clear-container">
+                <div class="copy_clear-buttons">
+                    <button onclick="copyURL()">Copy</button>
+                </div>
+                <div class="copy_clear-buttons">
+                    <button id="clear" onclick="clearField()">Clear</button>
+                </div>
             </div>
-        </div>
+        <!-- </div> -->
     </div>
     <script src="../js/index.js"></script>
+    <script async defer src="https://apis.google.com/js/api.js"
+      onload="this.onload=function(){};handleClientLoad()"
+      onreadystatechange="if (this.readyState === 'complete') this.onload()">
+    </script>
 </body>
 </html>
