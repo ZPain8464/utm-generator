@@ -6,14 +6,17 @@
  * TODO: Package into Chrome extension 
  * TODO: Sign out --> resets form 
  * TODO: Add modal to confirm url is correct before writing to Google Sheet
+ * TODO: Handle Date();
  */
 
-// removed secrets
+ // removed secrets
 
  const authorizeButton = document.getElementById('authorize_button');
  const signoutButton = document.getElementById('signout_button');
  const formField = document.getElementById("form_container");
  const urlField = document.getElementById("generated_url-container");
+
+ // Google Sign-In
 
  function handleClientLoad() {
     gapi.load('client:auth2', initClient);
@@ -27,10 +30,8 @@
       discoveryDocs: DISCOVERY_DOCS,
       scope: SCOPES
     }).then(function () {
-      // Listen for sign-in state changes.
       gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
 
-      // Handle the initial sign-in state.
       updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
       authorizeButton.onclick = handleAuthClick;
       signoutButton.onclick = handleSignoutClick;
@@ -55,14 +56,14 @@
     gapi.auth2.getAuthInstance().signIn();
   }
 
-  /**
-   *  Sign out the user upon button click.
-   */
   function handleSignoutClick(event) {
     gapi.auth2.getAuthInstance().signOut();
     formField.style.display = "none";
     urlField.style.display = "none";
   }
+
+
+  //Form Field functions
 
 const getFormData = (event) => {
     event.preventDefault();
@@ -128,6 +129,7 @@ const handleFormData = (f) => {
 } 
 
 ///// Form Field Data /////
+
 const getTLS = (url) => {
     const tls = 'https://';
     if(!url.includes(tls)) {
@@ -194,6 +196,7 @@ const handleTerm = (t) => {
 }
 
 ///// Export to Google Sheets /////
+
 const exportData = async (data) => {
   // TODO: Handle Date() to locale time
   const currentUser = gapi.auth2.getAuthInstance().currentUser.get();
@@ -203,6 +206,7 @@ const exportData = async (data) => {
   const url = data.url;
   const date = "123";
 
+
   const rows = await gapi.client.sheets.spreadsheets.values.get({
     spreadsheetId: '1qNGvs-V-EOgpuWprdABIGRaZASLihNc0GKX6kVZmBIU',
     range: 'UTM Link Tracking Sheet!A1:E50',
@@ -210,9 +214,11 @@ const exportData = async (data) => {
     return response.result;
   });
   
-  let index = rows.values.findIndex(row => row.length === 0);
-  const range = index += 1;
-
+  const rowArray = rows.values.filter(row => row.length === 5);
+  const currentIndex = rowArray.length;
+  const range = currentIndex + 1;
+  console.log(range);
+  
   let values = [
     [
       name,
