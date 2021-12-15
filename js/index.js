@@ -2,14 +2,11 @@
 /**
  * TODO: Add 'Content' field --> (not required)
  * TODO: Confirm what fields we definitely need and don't need with Marketing
- * TODO: If generated link isn't changed, don't add to GoogleSheet
  * TODO: Package into Chrome extension 
- * TODO: Sign out --> resets form 
  * TODO: Add modal to confirm url is correct before writing to Google Sheet
- * TODO: Handle Date();
  */
 
- // removed secrets
+ // secrets removed 
 
  const authorizeButton = document.getElementById('authorize_button');
  const signoutButton = document.getElementById('signout_button');
@@ -20,7 +17,6 @@
 
  function handleClientLoad() {
     gapi.load('client:auth2', initClient);
-    
   }
 
   function initClient() {
@@ -58,6 +54,7 @@
 
   function handleSignoutClick(event) {
     gapi.auth2.getAuthInstance().signOut();
+    resetForm();
     formField.style.display = "none";
     urlField.style.display = "none";
   }
@@ -127,6 +124,10 @@ const handleFormData = (f) => {
     exportData(sheetData);
     generateUrl(urlString);
 } 
+
+const resetForm = () => {
+  document.getElementById('utm_form').reset();
+}
 
 ///// Form Field Data /////
 
@@ -198,27 +199,14 @@ const handleTerm = (t) => {
 ///// Export to Google Sheets /////
 
 const exportData = async (data) => {
-  // TODO: Handle Date() to locale time
   const currentUser = gapi.auth2.getAuthInstance().currentUser.get();
   const name = currentUser.getBasicProfile().getName();
   const email = currentUser.getBasicProfile().getEmail();
   const purpose = data.purpose;
   const url = data.url;
-  const date = "123";
+  const getDate = new Date();
+  const date = getDate.toLocaleDateString();
 
-
-  const rows = await gapi.client.sheets.spreadsheets.values.get({
-    spreadsheetId: '1qNGvs-V-EOgpuWprdABIGRaZASLihNc0GKX6kVZmBIU',
-    range: 'UTM Link Tracking Sheet!A1:E50',
-  }).then(function(response) {
-    return response.result;
-  });
-  
-  const rowArray = rows.values.filter(row => row.length === 5);
-  const currentIndex = rowArray.length;
-  const range = currentIndex + 1;
-  console.log(range);
-  
   let values = [
     [
       name,
@@ -228,15 +216,24 @@ const exportData = async (data) => {
       url
     ]
   ];
-  const body = {values: values};
 
-  gapi.client.sheets.spreadsheets.values.update({
+  const params = {
     spreadsheetId: '1qNGvs-V-EOgpuWprdABIGRaZASLihNc0GKX6kVZmBIU',
-    range: `UTM Link Tracking Sheet!A${range}:E${range}`,
+    range: `UTM Link Tracking Sheet!A1:E1`,
     valueInputOption: 'RAW',
-    resource: body
-  }).then(function(response) {
-    console.log(response)
+    insertDataOption: 'INSERT_ROWS',
+  };
+
+  const valueRangeBody = {
+    "majorDimension": "ROWS",
+    'values': values
+  }
+
+  let request = gapi.client.sheets.spreadsheets.values.append(params, valueRangeBody);
+  request.then(function(res) {
+      console.log(res.result);
+    }, function(reason) {
+      console.error('error: ', + reason.result.error.message);
   })
 }
 
@@ -253,18 +250,19 @@ const generateUrl = (url) => {
         p.innerHTML = "";
         const text = document.createTextNode(url);
         p.appendChild(text);
+        resetForm();
         return;
     } 
     const text = document.createTextNode(url);
     p.appendChild(text);   
+    resetForm();
 }
 
-
 const copyURL = () => {
-        const copyText = document.getElementById("url-string");
-        copyText.select();
-        document.execCommand('copy');
-        alert("Copied the text: " + copyText.value);
+    const copyText = document.getElementById("url-string");
+    copyText.select();
+    document.execCommand('copy');
+    alert("Copied the text: " + copyText.value);
 }
 
 const clearField = () => {
@@ -272,5 +270,4 @@ const clearField = () => {
     if(urlString.hasChildNodes) {
         urlString.innerHTML = "";
     }
-   
 }
