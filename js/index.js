@@ -1,17 +1,12 @@
-// https://ga-dev-tools.web.app/campaign-url-builder/
-/**
- * TODO: Add 'Content' field --> (not required)
- * TODO: Confirm what fields we definitely need and don't need with Marketing
- * TODO: Package into Chrome extension 
- * TODO: Add modal to confirm url is correct before writing to Google Sheet
- */
-
- // secrets removed 
+// removed secrets
 
  const authorizeButton = document.getElementById('authorize_button');
  const signoutButton = document.getElementById('signout_button');
  const formField = document.getElementById("form_container");
  const urlField = document.getElementById("generated_url-container");
+ const exportButton = document.getElementById("export_utm_button");
+ const editUTMButton = document.getElementById("edit_utm_button");
+ const modalContainer = document.getElementById('modal_container');
 
  // Google Sign-In
 
@@ -55,6 +50,10 @@
   function handleSignoutClick(event) {
     gapi.auth2.getAuthInstance().signOut();
     resetForm();
+    const urlString = document.getElementById("url-string");
+    if(urlString.hasChildNodes) {
+        urlString.innerHTML = "";
+    }
     formField.style.display = "none";
     urlField.style.display = "none";
   }
@@ -96,34 +95,63 @@ const handleFormData = (f) => {
     const campaignParam = handleCampaign(f.campaign);
     const mediumParam = handleMedium(f.medium);
     const termParam = handleTerm(f.searchTerm);
-    const purpose = f.purpose
+    const purpose = f.purpose;
 
     if(termParam === null && promoParam === null) {
         let urlString = baseUrl + '?' + sourceParam + '&' + campaignParam + '&' + mediumParam;
-        const sheetData = {url: urlString, purpose: purpose}
-        exportData(sheetData);
+        const sheetData = {url: urlString, purpose: purpose};
+        triggerModal(urlString, sheetData);
         return generateUrl(urlString);
     }
 
     if(termParam === null) {
         let urlString = baseUrl + '?' + sourceParam + '&' + campaignParam + '&' + mediumParam + '&' + promoParam;
-        const sheetData = {url: urlString, purpose: purpose}
-        exportData(sheetData);
+        const sheetData = {url: urlString, purpose: purpose};
+        triggerModal(urlString, sheetData);
         return generateUrl(urlString); 
     }
     
     if(promoParam === null) {
         let urlString = baseUrl + '?' + sourceParam + '&' + campaignParam + '&' + mediumParam + '&' + termParam;
-        const sheetData = {url: urlString, purpose: purpose}
-        exportData(sheetData);
+        const sheetData = {url: urlString, purpose: purpose};
+        triggerModal(urlString, sheetData);
         return generateUrl(urlString); 
     }
 
     let urlString = baseUrl + '?' + sourceParam + '&' + campaignParam + '&' + mediumParam + '&' + termParam + '&' + promoParam;
-    const sheetData = {url: urlString, purpose: purpose}
-    exportData(sheetData);
+    const sheetData = {url: urlString, purpose: purpose};
+    triggerModal(urlString, sheetData)
     generateUrl(urlString);
 } 
+
+const triggerModal = (url, sheetData) => {
+  modalContainer.style.display = "block";
+
+  exportButton.onclick = () => {
+    exportData(sheetData);
+    modalContainer.style.display = "none";
+    resetForm();
+  }
+
+  modalContainer.onclick = () => {
+    modalContainer.style.display = "none";
+  }
+
+  if (url === "https://") {
+        return;
+    }
+
+    const p = document.getElementById("modal_content-textarea");
+
+    if (p.childNodes.length > 0) {
+        p.innerHTML = "";
+        const text = document.createTextNode(url);
+        p.appendChild(text);
+        return;
+    } 
+    const text = document.createTextNode(url);
+    p.appendChild(text);   
+}
 
 const resetForm = () => {
   document.getElementById('utm_form').reset();
@@ -250,12 +278,10 @@ const generateUrl = (url) => {
         p.innerHTML = "";
         const text = document.createTextNode(url);
         p.appendChild(text);
-        resetForm();
         return;
     } 
     const text = document.createTextNode(url);
     p.appendChild(text);   
-    resetForm();
 }
 
 const copyURL = () => {
