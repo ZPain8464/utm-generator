@@ -5,7 +5,7 @@
  * TODO: Add moving, trapping, and returning focus for accessibility on modal
  */
 
-// removed secrets
+ // removed secrets
 
  const authorizeButton = document.getElementById('authorize_button');
  const signoutButton = document.getElementById('signout_button');
@@ -16,6 +16,7 @@
  const modalContainer = document.getElementById('modal_container');
  const sourceError = document.getElementById('source_error');
  const mediumError = document.getElementById("medium_error");
+ const urlError = document.getElementById("url_error");
 
  // Google Sign-In
 
@@ -73,7 +74,6 @@
 const getFormData = (event) => {
     event.preventDefault();
     const url = document.getElementById("base_url").value;
-    // const source = document.getElementById("source").value;
     const source = document.getElementById("source")
     .options[document.getElementById('source').selectedIndex].text;
     const searchTerm = document.getElementById("search_term").value;
@@ -96,6 +96,12 @@ const getFormData = (event) => {
       return;
     }
 
+    mediumError.style.display = "none";
+
+    if (url.includes(" ")) {
+      urlError.style.display = "block";
+      return;
+    }
 
     const formData = {
         url, 

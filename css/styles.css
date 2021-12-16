@@ -183,6 +183,6 @@
     background-color: #e2e5e8;
   }
 
-  #source_error, #medium_error {
+  #source_error, #medium_error, #url_error {
     text-align: left;
   }
