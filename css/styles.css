@@ -12,13 +12,50 @@
     height: 100%;
   }
 
+  h1 {
+    margin-bottom: 5px;
+  }
+
   button {
     cursor: pointer;
+  }
+
+  #authorize_button, #signout_button {
+    display: block;
+    padding: 15px;
+    border-radius: 5px;
+    border: none;
+    background-color: #90a8ba;
+    color: #ffffff;
+    width: 15%;
+    font-size: 15px;
+  }
+
+  #signout_button{ 
+    margin-bottom: 15px;
+  }
+
+  #signout_button:hover, #authorize_button:hover, #copy:hover, #clear:hover {
+    background-color: #94b3c6;
   }
 
   #auth_buttons {
     display: flex;
     justify-content: center;
+  }
+
+  #submit_button {
+    background-color: #EDEFF1;
+    border: none;
+    border-radius: 5px;
+    padding: 10px;
+    width: 50%;
+    font-size: 15px;
+    font-weight: bolder;
+  }
+
+  #submit_button:hover {
+    background-color: #e2e5e8;
   }
 
   input, label {
@@ -29,6 +66,7 @@
     width: 100%;
     text-align: left;
     margin-top: 5px;
+    border: none;
   }
 
   label {
@@ -43,7 +81,7 @@
   .form_container {
     width: 500px;
     margin: 0 auto;
-    background-color: #dee2e6;
+    background-color: #B2BCC5;
     color: #495057;
     border-radius: 20px;
     padding: 10px;
@@ -70,6 +108,8 @@
     border-radius: 20px;
     resize: none;
     text-align: left;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #495057;
   }
 
   .copy_clear-container {
@@ -80,9 +120,20 @@
     padding-right: 10px;
   }
 
+  #copy, #clear {
+    border: none;
+    background-color: #90a8ba;
+    color: #ffffff;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 15px;
+  }
+
   #dropdown_menu, option, select {
     text-align: left;
     width: 100%;
+    border:0px;
+    outline:0px;
   }
 
   #modal_container {
@@ -116,4 +167,22 @@
 
   .modal_content p {
     padding-top: 5px;
+  }
+
+  #edit_utm_button, #export_utm_button {
+    border: 1px solid #B2BCC5;
+    background-color: #EDEFF1;
+    padding: 10px;
+    border-radius: 5px;
+    color: #495057;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  #edit_utm_button:hover, #export_utm_button:hover {
+    background-color: #e2e5e8;
+  }
+
+  #source_error, #medium_error {
+    text-align: left;
   }

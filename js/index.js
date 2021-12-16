@@ -1,3 +1,10 @@
+// https://ga-dev-tools.web.app/campaign-url-builder/
+/**
+ * TODO: Package into Chrome extension 
+ * TODO: Autocomplete for form field
+ * TODO: Add moving, trapping, and returning focus for accessibility on modal
+ */
+
 // removed secrets
 
  const authorizeButton = document.getElementById('authorize_button');
@@ -7,6 +14,8 @@
  const exportButton = document.getElementById("export_utm_button");
  const editUTMButton = document.getElementById("edit_utm_button");
  const modalContainer = document.getElementById('modal_container');
+ const sourceError = document.getElementById('source_error');
+ const mediumError = document.getElementById("medium_error");
 
  // Google Sign-In
 
@@ -64,14 +73,30 @@
 const getFormData = (event) => {
     event.preventDefault();
     const url = document.getElementById("base_url").value;
-    const source = document.getElementById("source").value;
+    // const source = document.getElementById("source").value;
+    const source = document.getElementById("source")
+    .options[document.getElementById('source').selectedIndex].text;
     const searchTerm = document.getElementById("search_term").value;
-    const medium = document.getElementById("medium").value;
+    const medium = document.getElementById("medium")
+    .options[document.getElementById('medium').selectedIndex].text;
     const campaign = document.getElementById("campaign_name").value;
     const promoType = document.getElementById("promotion_type")
     .options[document.getElementById('promotion_type').selectedIndex].text;
     const purpose = document.getElementById('purpose').value;
-    
+
+    if (source === "Choose Source") {
+      sourceError.style.display = "block";
+      return;
+    }
+
+    sourceError.style.display = "none";
+
+    if (medium === "Choose Medium") {
+      mediumError.style.display = "block";
+      return;
+    }
+
+
     const formData = {
         url, 
         source, 
@@ -133,7 +158,7 @@ const triggerModal = (url, sheetData) => {
     resetForm();
   }
 
-  modalContainer.onclick = () => {
+  editUTMButton.onclick = () => {
     modalContainer.style.display = "none";
   }
 
@@ -188,24 +213,14 @@ const handleCampaign = (c) => {
     return parameter;
 }
 
-const handleSource = (s) => {
-  const words = s.split(' ');
-  for (let i = 0; i < words.length; i++) {
-     words[i] = words[i][0].toUpperCase() + words[i].substr(1);
-  }
-  const addCaps = words.join(" ");
-    const formatData = addCaps.replace(/ /g, "_");
+const handleSource = (s) => { 
+    const formatData = s.replace(/ /g, "_");
     const parameter =  'utm_source=' + formatData;
     return parameter;
 }
 
 const handleMedium = (m) => {
-  const words = m.split(' ');
-  for (let i = 0; i < words.length; i++) {
-     words[i] = words[i][0].toUpperCase() + words[i].substr(1);
-  }
-  const addCaps = words.join(" ");
-    const formatData = addCaps.replace(/ /g, "_");
+    const formatData = m.replace(/ /g, "_");
     const parameter =  'utm_medium=' + formatData;
     return parameter;
 }
@@ -247,7 +262,7 @@ const exportData = async (data) => {
 
   const params = {
     spreadsheetId: '1qNGvs-V-EOgpuWprdABIGRaZASLihNc0GKX6kVZmBIU',
-    range: `UTM Link Tracking Sheet!A1:E1`,
+    range: `UTM Link Tracking Sheet!A2:E2`,
     valueInputOption: 'RAW',
     insertDataOption: 'INSERT_ROWS',
   };
