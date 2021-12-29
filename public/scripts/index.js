@@ -20,7 +20,9 @@
  const mediumError = document.getElementById("medium_error");
  const urlError = document.getElementById("url_error");
 
- // Google Sign-In
+ /**
+  * Google Sign-In
+  */
 
  const handleClientLoad = () => {
     gapi.load('client:auth2', initClient);
@@ -29,8 +31,6 @@
   const initClient = async () => {
     const DISCOVERY_DOCS = ["https://sheets.googleapis.com/$discovery/rest?version=v4"]
     const credentials = await fetch(`/googleauth`).then((res) => res.json());
-    
-    
 
     gapi.client.init({
       apiKey: credentials.API_KEY,
@@ -75,8 +75,22 @@
     urlField.style.display = "none";
   }
 
+  /**
+   * On page load functions
+   */
+  window.onload = async () => {
+    const fields = await fetch(`/fields_data`).then((res) => res.json());
+    const sources = Object.values(fields.source);
+    // Create Source options on page load
+    for (i = 0; i < sources.length; i++) {
+      document.createElement("option");
+      document.getElementById("source").innerHTML += '<option id="' + i + '">' + sources[i] + '</option>';
+    };
+  }
 
-  //Form Field functions
+  /**
+   * Form Field functions 
+   */
 
 const getFormData = (event) => {
     event.preventDefault();
@@ -195,7 +209,9 @@ const resetForm = () => {
   document.getElementById('utm_form').reset();
 }
 
-///// Form Field Data /////
+/**
+ * Form Field Data
+ */
 
 const getTLS = (url) => {
     const tls = 'https://';
@@ -252,7 +268,9 @@ const handleTerm = (t) => {
     return parameter;
 }
 
-///// Export to Google Sheets /////
+/** 
+ * Export to Google Sheets
+*/
 
 const exportData = async (data) => {
   const currentUser = gapi.auth2.getAuthInstance().currentUser.get();
@@ -293,7 +311,9 @@ const exportData = async (data) => {
   })
 }
 
-///// Button Functions /////
+/**
+ * Button Functions
+ */
 
 const generateUrl = (url) => {
     if (url === "https://") {
