@@ -4,7 +4,9 @@
  * TODO: Autocomplete for form field
  * TODO: Add moving, trapping, and returning focus for accessibility on modal
  * TODO: Add README
- * 
+ * TODO: Handle space after entry in Term field
+ * TODO: get rid of modal, only enable 'copy' after the url is written to Sheet
+ * TODO: Some kind of confirmation animation so they know url is generated 
  */
 
  const authorizeButton = document.getElementById('authorize_button');
@@ -25,12 +27,15 @@
   }
 
   const initClient = async () => {
+    const DISCOVERY_DOCS = ["https://sheets.googleapis.com/$discovery/rest?version=v4"]
     const credentials = await fetch(`/googleauth`).then((res) => res.json());
-    console.log(credentials);
+    
+    
+
     gapi.client.init({
       apiKey: credentials.API_KEY,
       clientId: credentials.CLIENT_ID,
-      discoveryDocs: credentials.DISCOVERY_DOCS,
+      discoveryDocs: DISCOVERY_DOCS,
       scope: credentials.SCOPES
     }).then(function () {
       gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
@@ -100,7 +105,7 @@ const getFormData = (event) => {
 
     mediumError.style.display = "none";
 
-    if (url.includes(" ")) {
+    if (url.includes(" ") || url.includes(",")) {
       urlError.style.display = "block";
       return;
     }
