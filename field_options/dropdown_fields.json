@@ -116,5 +116,49 @@
         "accidentaltechpodcast": "accidentaltechpodcast",
         "VirtualEventUIKitDownload": "VirtualEventUIKitDownload",
         "TNWConference": "TNWConference"
+    },
+    "ads_and_content": {
+        "promoted": "promoted",
+        "promotion": "promotion",
+        "promoted_newsletter": "promoted_newsletter",
+        "promoted_job": "promoted_job",
+        "newsletter_logo_ad": "newsletter_logo_ad",
+        "newsletter_content_ad": "newsletter_content_ad",
+        "podcast_ad": "podcast_ad",
+        "podcast_episode": "podcast_episode",
+        "podcast": "podcast",
+        "email_logo_ad": "email_logo_ad",
+        "email_content_ad": "email_content_ad",
+        "github_repo_content_ad": "github_repo_content_ad",
+        "guest_blog_post": "guest_blog_post",
+        "webpage_logo_ad": "webpage_logo_ad",
+        "webpage_content_ad": "webpage_content_ad",
+        "video_ad": "video_ad",
+        "video_episode": "video_episode",
+        "producthunt": "producthunt",
+        "github": "github",
+        "highscalibility": "highscalibility",
+        "Winds": "Winds",
+        "sponsorship": "sponsorship",
+        "banner": "banner"
+    },
+
+    "live_events": {
+        "Event": "Event",
+        "whole_event_L": "whole_event_L",
+        "whole_event_and_booth_L": "whole_event_and_booth_L",
+        "meetup_L": "meetup_L",
+        "event_promo_logo_ad_L": "event_promo_logo_ad_L",
+        "event_promo_content_ad_L": "event_promo_content_ad_L"
+    },
+
+    "virtual_events": {
+        "virtual_event": "virtual_event",
+        "whole_event_V": "whole_event_V",
+        "whole_event_and_booth_V": "whole_event_and_booth_V",
+        "webinar": "webinar",
+        "meetup_V": "meetup_V",
+        "event_promo_logo_ad_V": "event_promo_logo_ad_V",
+        "event_promo_content_ad_V": "event_promo_content_ad_V"
     }
 }
