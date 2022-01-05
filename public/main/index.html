@@ -35,19 +35,20 @@
             <div id="dropdown_menu">
                 <select onchange="handlePromotionType()" name="promotion_type" id="promotion_type" required>
                     <div id="dropdown_content">
-                        <option value="none" selected>Choose Promotion Type</option>
+                        <option value="choose_type" selected>Choose Promotion Type</option>
                         <option value="ads_and_content">Ads & Content</option>
-                        <option value="virtual_event">Virtual Event</option>
-                        <option value="live_event">Live Event</option>
+                        <option value="virtual_events">Virtual Events</option>
+                        <option value="live_events">Live Events</option>
                         
                     </div>
                 </select>
+                <span id="promotion_type_error" style="display: none;">Not a valid selection. </span>
             </div>
             <label for="medium">Medium: (required)</label>
             <div id="dropdown_menu">
                 <select name="medium" id="medium" required disabled>
                     <div id="dropdown_content">
-                        <option value="none" selected>Choose Medium</option>
+                        <option value="choose_medium">Choose Medium</option>
                     </div>
                 </select>
                 <span id="medium_error" style="display: none;">Not a valid selection. </span>

@@ -2,13 +2,14 @@
 /**
  * TODO: Package into Chrome extension 
  * TODO: Autocomplete for form field
- * TODO: Add moving, trapping, and returning focus for accessibility on modal
- * TODO: Add README
  * TODO: Handle space after entry in Term field
  * TODO: get rid of modal, only enable 'copy' after the url is written to Sheet
+ *  > Stretch goal: Add modal "buttons" to generated URL field before exporting;
+ *  > Strech goal: Add URL state to see real-time updates to URL
  * TODO: Some kind of confirmation animation so they know url is generated 
  * 
- * TODO: Refactor handling Sources & Mediums form fields
+ * TODO: Refactor handling Sources & Mediums form fields // DONE
+ * TODO: Handle submitting with "Choose Promo Type" or "Choose Medium"
  */
 
  const authorizeButton = document.getElementById('authorize_button');
@@ -19,6 +20,7 @@
  const editUTMButton = document.getElementById("edit_utm_button");
  const modalContainer = document.getElementById('modal_container');
  const sourceError = document.getElementById('source_error');
+ const promoError = document.getElementById("promotion_type_error");
  const mediumError = document.getElementById("medium_error");
  const urlError = document.getElementById("url_error");
 
@@ -77,9 +79,7 @@
     urlField.style.display = "none";
   }
 
-  /**
-   * Dropdown List functions
-   */
+  // DROPDOWN LIST FUNCTIONS // 
 
   /**
    * Create Sources dropdown
@@ -97,46 +97,38 @@
   /**
    * Create Medium dropdown
    */
+
   const handlePromotionType = () => {
     const promoType = document.getElementById("promotion_type").value;
-    createMediumField(promoType);
+
+    if (promoType === "choose_type") {
+      promoError.style.display = "block";
+      document.getElementById("medium").disabled = true;
+      return
+    }
+    promoError.style.display = "none";
+    generateMediumDropdown(promoType);
     
   }
   
-  const createMediumField = async (promo) => {
-    // Handle user re-selecting Choose Promo Type
-    // Clear the medium select options if user clicks another option (DONE)
+  const generateMediumDropdown = async (promo) => {
+    // Handle user re-selecting Choose Medium
     const fields = await fetch(`/fields_data`).then((res) => res.json());
     const selOptions = document.querySelectorAll("option[name=medium_option]");
-    console.log(selOptions)
+
     if (selOptions.length > 0) {
       selOptions.forEach(e => e.remove());
     }
-    if (promo === "live_event") {
-      const liveEvents = Object.values(fields.live_events);
-      document.getElementById("medium").disabled = false;
-      for (i = 0; i < liveEvents.length; i++) {
-        document.createElement("option");
-        document.getElementById("medium").innerHTML += '<option name="medium_option" id="' + i + '">' + liveEvents[i] + '</option>';
-      };
-    }
-    if (promo === "virtual_event") {
-      const virtualEvents = Object.values(fields.virtual_events);
-      document.getElementById("medium").disabled = false;
-      for (i = 0; i < virtualEvents.length; i++) {
-        document.createElement("option");
-        document.getElementById("medium").innerHTML += '<option name="medium_option" id="' + i + '">' + virtualEvents[i] + '</option>';
-      };
-    }
-    if (promo === "ads_and_content") {
-      const adsAndContent = Object.values(fields.ads_and_content);
-      document.getElementById("medium").disabled = false;
-      for (i = 0; i < adsAndContent.length; i++) {
-        document.createElement("option");
-        document.getElementById("medium").innerHTML += '<option name="medium_option" id="' + i + '">' + adsAndContent[i] + '</option>';
-      };
-    }
+
+    const dropdownItems = Object.values(fields[promo]);
+    
+    document.getElementById("medium").disabled = false;
+    for (i = 0; i < dropdownItems.length; i++) {
+      document.createElement("option");
+      document.getElementById("medium").innerHTML += '<option name="medium_option" id="' + i + '">' + dropdownItems[i] + '</option>';
+    };
   }
+
   /**
    * Form Field functions 
    */
