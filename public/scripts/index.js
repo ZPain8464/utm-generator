@@ -86,14 +86,13 @@
    */
   window.onload = async () => {
     const fields = await fetch(`/fields_data`).then((res) => res.json());
-
     const sources = Object.values(fields.source);
-    // Create Source options on page load
     for (i = 0; i < sources.length; i++) {
       document.createElement("option");
       document.getElementById("source").innerHTML += '<option id="' + i + '">' + sources[i] + '</option>';
     };
   }
+
   /**
    * Create Medium dropdown
    */
@@ -121,13 +120,65 @@
     }
 
     const dropdownItems = Object.values(fields[promo]);
-    
     document.getElementById("medium").disabled = false;
+
     for (i = 0; i < dropdownItems.length; i++) {
       document.createElement("option");
       document.getElementById("medium").innerHTML += '<option name="medium_option" id="' + i + '">' + dropdownItems[i] + '</option>';
     };
   }
+  
+
+  // AUTOCOMPLETE //
+  function autocomplete(inp, arr) {
+    let currentFocus;
+
+    inp.addEventListener("input", function(e) {
+      let a, b, i, val = this.value;
+
+      closeAllLists()
+      if (!val) { return false;}
+      currentFocus = -1;
+      
+      a = document.createElement("div");
+      a.setAttribute("id", "autocomplete-list");
+      a.setAttribute("class", "autocomplete-items");
+      this.parentNode.appendChild(a);
+      
+      for (i = 0; i < arr.length; i++) {
+        if (arr[i].substr(0, val.length).toUpperCase() == val.toUpperCase()) {
+          b = document.createElement("div");
+          b.innerHTML = "<strong>" + arr[i].substr(0, val.length) + "</strong>";
+          b.innerHTML += arr[i].substr(val.length);
+          b.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";
+          b.addEventListener("click", function(e) {
+            inp.value = this.getElementsByTagName("input")[0].value;
+            closeAllLists();
+        });
+        a.appendChild(b);
+        }
+      }
+    });
+
+    // Other autocomplete functions here // 
+
+    function closeAllLists(elmnt) {
+      /*close all autocomplete lists in the document,
+      except the one passed as an argument:*/
+      var x = document.getElementsByClassName("autocomplete-items");
+      for (var i = 0; i < x.length; i++) {
+        if (elmnt != x[i] && elmnt != inp) {
+          x[i].parentNode.removeChild(x[i]);
+        }
+      }
+    }
+    /*execute a function when someone clicks in the document:*/
+    document.addEventListener("click", function (e) {
+        closeAllLists(e.target);
+    });
+  }
+  let arr = ["google", "newsletter", "gmail", "youtube", "example"]
+  autocomplete(document.getElementById("source_input"), arr);
 
   /**
    * Form Field functions 

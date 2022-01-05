@@ -14,7 +14,7 @@
         <button id="signout_button" style="display: none;">Sign Out</button>
     </div>
     <div class="form_container" id="form_container" style="display: none;">
-        <form id="utm_form">
+        <form id="utm_form" autocomplete="off">
             <label name="base_url" for="base_url">Base URL: (required)</label>
             <input type="text" id="base_url" name="base_url" placeholder="https://getstream.io" required/>
             <span id="url_error" style="display: none;">URL can't contain spaces or commas. </span>
@@ -22,7 +22,7 @@
             <input id="search_term" name="search_term" type="text" placeholder="Search Term" />
             <label for="source">Source: (required)</label>
             <div id="dropdown_menu">
-                <select name="source" id="source" required>
+                <select name="source" id="source" placeholder="Choose Source" required>
                     <div id="dropdown_content">
                         <option value="none" selected>Choose Source</option>
                         <option value="google">Google</option>
@@ -30,6 +30,9 @@
                     </div>
                 </select>
                 <span id="source_error" style="display: none;">Not a valid selection. </span>
+            </div>
+            <div class="autocomplete" style="width:300px;">
+                <input class="autocomplete_input" id="source_input" type="text" name="source_input" placeholder="Choose Source">
             </div>
             <label for="promotion_type">Promotion Type:</label>
             <div id="dropdown_menu">
