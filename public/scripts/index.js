@@ -140,7 +140,7 @@
 
     // Other autocomplete functions here // 
     inp.addEventListener("keydown", function(e) {
-      var x = document.getElementById("autocomplete-list");
+      let x = document.getElementById("autocomplete-list");
       if (x) x = x.getElementsByTagName("div");
       if (e.keyCode == 40) {
         /*If the arrow DOWN key is pressed,
@@ -176,7 +176,7 @@
     }
     function removeActive(x) {
       /*a function to remove the "active" class from all autocomplete items:*/
-      for (var i = 0; i < x.length; i++) {
+      for (let i = 0; i < x.length; i++) {
         x[i].classList.remove("autocomplete-active");
       }
     }
@@ -209,11 +209,9 @@
 const getFormData = (event) => {
     event.preventDefault();
     const url = document.getElementById("base_url").value;
-    const source = document.getElementById("source")
-    .options[document.getElementById('source').selectedIndex].text;
+    const source = document.getElementById("source_input").value;
     const searchTerm = document.getElementById("search_term").value;
-    const medium = document.getElementById("medium")
-    .options[document.getElementById('medium').selectedIndex].text;
+    const medium = document.getElementById("medium_input").value;
     const campaign = document.getElementById("campaign_name").value;
     const promoType = document.getElementById("promotion_type")
     .options[document.getElementById('promotion_type').selectedIndex].text;
@@ -226,12 +224,12 @@ const getFormData = (event) => {
 
     sourceError.style.display = "none";
 
-    if (medium === "Choose Medium") {
-      mediumError.style.display = "block";
-      return;
-    }
+    // if (medium === "Choose Medium") {
+    //   mediumError.style.display = "block";
+    //   return;
+    // }
 
-    mediumError.style.display = "none";
+    // mediumError.style.display = "none";
 
     if (url.includes(" ") || url.includes(",")) {
       urlError.style.display = "block";
@@ -247,8 +245,8 @@ const getFormData = (event) => {
         promoType, 
         purpose
     }
-
-    handleFormData(formData);
+    console.log(formData);
+    // handleFormData(formData);
 }
 
 const form = document.getElementById("utm_form");
