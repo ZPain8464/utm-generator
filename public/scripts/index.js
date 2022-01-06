@@ -1,14 +1,14 @@
 // https://ga-dev-tools.web.app/campaign-url-builder/
 /**
  * TODO: Package into Chrome extension 
- * TODO: Autocomplete for form field
+ * 
  * TODO: Handle space after entry in Term field
  * TODO: get rid of modal, only enable 'copy' after the url is written to Sheet
  *  > Stretch goal: Add modal "buttons" to generated URL field before exporting;
  *  > Strech goal: Add URL state to see real-time updates to URL
  * TODO: Some kind of confirmation animation so they know url is generated 
  * 
- * TODO: Refactor handling Sources & Mediums form fields // DONE
+ * TODO: Remove Modal and refactor handling submission
  * TODO: Handle submitting with "Choose Promo Type" or "Choose Medium"
  */
 
@@ -21,7 +21,7 @@
  const modalContainer = document.getElementById('modal_container');
  const sourceError = document.getElementById('source_error');
  const promoError = document.getElementById("promotion_type_error");
- const mediumError = document.getElementById("medium_error");
+ 
  const urlError = document.getElementById("url_error");
 
  /**
@@ -80,57 +80,35 @@
   }
 
   // DROPDOWN LIST FUNCTIONS // 
-
-  /**
-   * Create Sources dropdown
-   */
-  window.onload = async () => {
-    const fields = await fetch(`/fields_data`).then((res) => res.json());
-    const sources = Object.values(fields.source);
-    for (i = 0; i < sources.length; i++) {
-      document.createElement("option");
-      document.getElementById("source").innerHTML += '<option id="' + i + '">' + sources[i] + '</option>';
-    };
-  }
-
-  /**
-   * Create Medium dropdown
-   */
-
+  
   const handlePromotionType = () => {
     const promoType = document.getElementById("promotion_type").value;
 
     if (promoType === "choose_type") {
-      promoError.style.display = "block";
-      document.getElementById("medium").disabled = true;
+      document.getElementById("medium_input").setAttribute("disabled", "disabled");
       return
     }
+    document.getElementById("medium_input").removeAttribute("disabled");
     promoError.style.display = "none";
-    generateMediumDropdown(promoType);
+    return promoType;
     
   }
-  
-  const generateMediumDropdown = async (promo) => {
-    // Handle user re-selecting Choose Medium
-    const fields = await fetch(`/fields_data`).then((res) => res.json());
-    const selOptions = document.querySelectorAll("option[name=medium_option]");
-
-    if (selOptions.length > 0) {
-      selOptions.forEach(e => e.remove());
-    }
-
-    const dropdownItems = Object.values(fields[promo]);
-    document.getElementById("medium").disabled = false;
-
-    for (i = 0; i < dropdownItems.length; i++) {
-      document.createElement("option");
-      document.getElementById("medium").innerHTML += '<option name="medium_option" id="' + i + '">' + dropdownItems[i] + '</option>';
-    };
-  }
-  
 
   // AUTOCOMPLETE //
-  function autocomplete(inp, arr) {
+  async function autocomplete(inp) {
+    const fields = await fetch(`/fields_data`).then((res) => res.json());
+    let arr;
+    if (inp.id === "source_input") {
+      arr = Object.values(fields.source);
+    }
+
+    const promoType = handlePromotionType();
+    
+    if (inp.id === "medium_input" && promoType != "Choose Type") {
+      document.getElementById("medium_input").disabled = false;
+      arr = Object.values(fields[promoType]);
+    }
+
     let currentFocus;
 
     inp.addEventListener("input", function(e) {
@@ -161,12 +139,53 @@
     });
 
     // Other autocomplete functions here // 
+    inp.addEventListener("keydown", function(e) {
+      var x = document.getElementById("autocomplete-list");
+      if (x) x = x.getElementsByTagName("div");
+      if (e.keyCode == 40) {
+        /*If the arrow DOWN key is pressed,
+        increase the currentFocus variable:*/
+        currentFocus++;
+        /*and and make the current item more visible:*/
+        addActive(x);
+      } else if (e.keyCode == 38) { //up
+        /*If the arrow UP key is pressed,
+        decrease the currentFocus variable:*/
+        currentFocus--;
+        /*and and make the current item more visible:*/
+        addActive(x);
+      } else if (e.keyCode == 13) {
+        /*If the ENTER key is pressed, prevent the form from being submitted,*/
+        e.preventDefault();
+        if (currentFocus > -1) {
+          /*and simulate a click on the "active" item:*/
+          if (x) x[currentFocus].click();
+        }
+      }
+  });
+
+    function addActive(x) {
+      /*a function to classify an item as "active":*/
+      if (!x) return false;
+      /*start by removing the "active" class on all items:*/
+      removeActive(x);
+      if (currentFocus >= x.length) currentFocus = 0;
+      if (currentFocus < 0) currentFocus = (x.length - 1);
+      /*add class "autocomplete-active":*/
+      x[currentFocus].classList.add("autocomplete-active");
+    }
+    function removeActive(x) {
+      /*a function to remove the "active" class from all autocomplete items:*/
+      for (var i = 0; i < x.length; i++) {
+        x[i].classList.remove("autocomplete-active");
+      }
+    }
 
     function closeAllLists(elmnt) {
       /*close all autocomplete lists in the document,
       except the one passed as an argument:*/
-      var x = document.getElementsByClassName("autocomplete-items");
-      for (var i = 0; i < x.length; i++) {
+      let x = document.getElementsByClassName("autocomplete-items");
+      for (let i = 0; i < x.length; i++) {
         if (elmnt != x[i] && elmnt != inp) {
           x[i].parentNode.removeChild(x[i]);
         }
@@ -177,8 +196,11 @@
         closeAllLists(e.target);
     });
   }
-  let arr = ["google", "newsletter", "gmail", "youtube", "example"]
-  autocomplete(document.getElementById("source_input"), arr);
+
+  // Retrieves source or medium input id
+  const getInput = (input) => {
+    autocomplete(document.getElementById(input.id));
+  }
 
   /**
    * Form Field functions 

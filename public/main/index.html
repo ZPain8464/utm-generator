@@ -22,17 +22,10 @@
             <input id="search_term" name="search_term" type="text" placeholder="Search Term" />
             <label for="source">Source: (required)</label>
             <div id="dropdown_menu">
-                <select name="source" id="source" placeholder="Choose Source" required>
-                    <div id="dropdown_content">
-                        <option value="none" selected>Choose Source</option>
-                        <option value="google">Google</option>
-                        <option value="newsletter">Newsletter</option>
-                    </div>
-                </select>
+                <div class="autocomplete" style="width:300px;">
+                    <input class="autocomplete_input" onfocus="getInput(this)" id="source_input" type="text" name="source_input" placeholder="Choose Source">
+                </div>
                 <span id="source_error" style="display: none;">Not a valid selection. </span>
-            </div>
-            <div class="autocomplete" style="width:300px;">
-                <input class="autocomplete_input" id="source_input" type="text" name="source_input" placeholder="Choose Source">
             </div>
             <label for="promotion_type">Promotion Type:</label>
             <div id="dropdown_menu">
@@ -49,12 +42,9 @@
             </div>
             <label for="medium">Medium: (required)</label>
             <div id="dropdown_menu">
-                <select name="medium" id="medium" required disabled>
-                    <div id="dropdown_content">
-                        <option value="choose_medium">Choose Medium</option>
-                    </div>
-                </select>
-                <span id="medium_error" style="display: none;">Not a valid selection. </span>
+                <div class="autocomplete" style="width:300px;">
+                    <input class="autocomplete_input" onfocus="getInput(this)" id="medium_input" type="text" name="source_input" placeholder="Choose Medium" disabled>
+                </div>
             </div>
             <label name="campaign_name" for="campaign_name">Campaign Name: (required)</label>
             <input id="campaign_name" name="campaign_name" type="text" placeholder="Flutter Vikings" required/>
