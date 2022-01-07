@@ -3,12 +3,11 @@
  * TODO: Package into Chrome extension 
  * 
  * TODO: Handle space after entry in Term field
- * TODO: get rid of modal, only enable 'copy' after the url is written to Sheet
- *  > Stretch goal: Add modal "buttons" to generated URL field before exporting;
- *  > Strech goal: Add URL state to see real-time updates to URL
+ *
+ * > Strech goal: Add URL state to see real-time updates to URL
  * TODO: Some kind of confirmation animation so they know url is generated 
  * 
- * TODO: Remove Modal and refactor handling submission
+ * 
  * TODO: Handle submitting with "Choose Promo Type" or "Choose Medium"
  */
 
@@ -18,7 +17,6 @@
  const urlField = document.getElementById("generated_url-container");
  const exportButton = document.getElementById("export_utm_button");
  const editUTMButton = document.getElementById("edit_utm_button");
- const modalContainer = document.getElementById('modal_container');
  const sourceError = document.getElementById('source_error');
  const promoError = document.getElementById("promotion_type_error");
  const urlError = document.getElementById("url_error");
@@ -155,47 +153,33 @@
       let x = document.getElementById("autocomplete-list");
       if (x) x = x.getElementsByTagName("div");
       if (e.keyCode == 40) {
-        /*If the arrow DOWN key is pressed,
-        increase the currentFocus variable:*/
         currentFocus++;
-        /*and and make the current item more visible:*/
         addActive(x);
-      } else if (e.keyCode == 38) { //up
-        /*If the arrow UP key is pressed,
-        decrease the currentFocus variable:*/
+      } else if (e.keyCode == 38) { 
         currentFocus--;
-        /*and and make the current item more visible:*/
         addActive(x);
       } else if (e.keyCode == 13) {
-        /*If the ENTER key is pressed, prevent the form from being submitted,*/
         e.preventDefault();
         if (currentFocus > -1) {
-          /*and simulate a click on the "active" item:*/
           if (x) x[currentFocus].click();
         }
       }
   });
 
     function addActive(x) {
-      /*a function to classify an item as "active":*/
       if (!x) return false;
-      /*start by removing the "active" class on all items:*/
       removeActive(x);
       if (currentFocus >= x.length) currentFocus = 0;
       if (currentFocus < 0) currentFocus = (x.length - 1);
-      /*add class "autocomplete-active":*/
       x[currentFocus].classList.add("autocomplete-active");
     }
     function removeActive(x) {
-      /*a function to remove the "active" class from all autocomplete items:*/
       for (let i = 0; i < x.length; i++) {
         x[i].classList.remove("autocomplete-active");
       }
     }
 
     function closeAllLists(elmnt) {
-      /*close all autocomplete lists in the document,
-      except the one passed as an argument:*/
       let x = document.getElementsByClassName("autocomplete-items");
       for (let i = 0; i < x.length; i++) {
         if (elmnt != x[i] && elmnt != inp) {
@@ -203,7 +187,6 @@
         }
       }
     }
-    /*execute a function when someone clicks in the document:*/
     document.addEventListener("click", function (e) {
         closeAllLists(e.target);
     });
@@ -225,8 +208,6 @@ const getFormData = (event) => {
     const searchTerm = document.getElementById("search_term").value;
     const medium = document.getElementById("medium_input").value;
     const campaign = document.getElementById("campaign_name").value;
-    const promoType = document.getElementById("promotion_type")
-    .options[document.getElementById('promotion_type').selectedIndex].text;
     const purpose = document.getElementById('purpose').value;
 
     if (source === "Choose Source") {
@@ -253,12 +234,10 @@ const getFormData = (event) => {
         source, 
         searchTerm,
         medium, 
-        campaign, 
-        promoType, 
+        campaign,  
         purpose
     }
-    console.log(formData);
-    // handleFormData(formData);
+    handleFormData(formData);
 }
 
 const form = document.getElementById("utm_form");
@@ -266,68 +245,32 @@ form.addEventListener("submit", getFormData);
 
 const handleFormData = (f) => {
     const baseUrl = getTLS(f.url);
-    const promoParam = handlePromo(f.promoType);
     const sourceParam = handleSource(f.source);
     const campaignParam = handleCampaign(f.campaign);
     const mediumParam = handleMedium(f.medium);
     const termParam = handleTerm(f.searchTerm);
     const purpose = f.purpose;
+    console.log(baseUrl, sourceParam, campaignParam, mediumParam, termParam, purpose)
 
-    if(termParam === null && promoParam === null) {
+    if(termParam === null) {
         let urlString = baseUrl + '?' + sourceParam + '&' + campaignParam + '&' + mediumParam;
         const sheetData = {url: urlString, purpose: purpose};
-        triggerModal(urlString, sheetData);
+        exportData(sheetData);
         return generateUrl(urlString);
     }
 
     if(termParam === null) {
-        let urlString = baseUrl + '?' + sourceParam + '&' + campaignParam + '&' + mediumParam + '&' + promoParam;
+        let urlString = baseUrl + '?' + sourceParam + '&' + campaignParam + '&' + mediumParam
         const sheetData = {url: urlString, purpose: purpose};
-        triggerModal(urlString, sheetData);
-        return generateUrl(urlString); 
-    }
-    
-    if(promoParam === null) {
-        let urlString = baseUrl + '?' + sourceParam + '&' + campaignParam + '&' + mediumParam + '&' + termParam;
-        const sheetData = {url: urlString, purpose: purpose};
-        triggerModal(urlString, sheetData);
+        exportData(sheetData);
         return generateUrl(urlString); 
     }
 
-    let urlString = baseUrl + '?' + sourceParam + '&' + campaignParam + '&' + mediumParam + '&' + termParam + '&' + promoParam;
+    let urlString = baseUrl + '?' + sourceParam + '&' + campaignParam + '&' + mediumParam + '&' + termParam;
     const sheetData = {url: urlString, purpose: purpose};
-    triggerModal(urlString, sheetData)
+    exportData(sheetData);
     generateUrl(urlString);
 } 
-
-const triggerModal = (url, sheetData) => {
-  modalContainer.style.display = "block";
-
-  exportButton.onclick = () => {
-    exportData(sheetData);
-    modalContainer.style.display = "none";
-    resetForm();
-  }
-
-  editUTMButton.onclick = () => {
-    modalContainer.style.display = "none";
-  }
-
-  if (url === "https://") {
-        return;
-    }
-
-    const p = document.getElementById("modal_content-textarea");
-
-    if (p.childNodes.length > 0) {
-        p.innerHTML = "";
-        const text = document.createTextNode(url);
-        p.appendChild(text);
-        return;
-    } 
-    const text = document.createTextNode(url);
-    p.appendChild(text);   
-}
 
 const resetForm = () => {
   document.getElementById('utm_form').reset();
@@ -344,15 +287,6 @@ const getTLS = (url) => {
         return tlsUrl;
         }
     return url;
-}
-
-const handlePromo = (promo) => {
-    if(promo === "Choose Promotion Type") {
-        return null;
-    }
-    const formatData = promo.replace(/ /g, "_");
-    const parameter =  'utm_promotion=' + formatData
-    return parameter;
 }
 
 const handleCampaign = (c) => {
