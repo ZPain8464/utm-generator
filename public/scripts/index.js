@@ -21,8 +21,8 @@
  const modalContainer = document.getElementById('modal_container');
  const sourceError = document.getElementById('source_error');
  const promoError = document.getElementById("promotion_type_error");
- 
  const urlError = document.getElementById("url_error");
+ const profileInfo = document.getElementById("profile_container");
 
  /**
   * Google Sign-In
@@ -54,10 +54,12 @@
 
   function updateSigninStatus(isSignedIn) {
     if (isSignedIn) {
+      profileInfo.style.display = "inline-flex";
       authorizeButton.style.display = 'none';
       signoutButton.style.display = 'block';
       formField.style.display = "block";
       urlField.style.display = "block";
+      getUser();
     } else {
       authorizeButton.style.display = 'block';
       signoutButton.style.display = 'none';
@@ -77,7 +79,17 @@
     }
     formField.style.display = "none";
     urlField.style.display = "none";
+    profileInfo.style.display = "none";
   }
+
+  const getUser = async () => {
+    const currentUser = await gapi.auth2.getAuthInstance().currentUser.get();
+    const name = currentUser.getBasicProfile().getName();
+    const imageUrl = currentUser.getBasicProfile().getImageUrl();
+    document.getElementById("profile_image_container").style.backgroundImage =`url(${imageUrl})`;
+    document.getElementById("profile_name").innerHTML = `${name}`;
+  }
+
 
   // DROPDOWN LIST FUNCTIONS // 
   

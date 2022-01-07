@@ -9,63 +9,74 @@
 </head>
 <body>
     <h1>DevRel UTM Link Generator</h1>
-    <div id="auth_buttons">
-        <button id="authorize_button" style="display: none;">Sign In</button>
-        <button id="signout_button" style="display: none;">Sign Out</button>
-    </div>
-    <div class="form_container" id="form_container" style="display: none;">
-        <form id="utm_form" autocomplete="off">
-            <label name="base_url" for="base_url">Base URL: (required)</label>
-            <input type="text" id="base_url" name="base_url" placeholder="https://getstream.io" required/>
-            <span id="url_error" style="display: none;">URL can't contain spaces or commas. </span>
-            <label name="search_term" for="search_term">Search Term: </label>
-            <input id="search_term" name="search_term" type="text" placeholder="Search Term" />
-            <label for="source">Source: (required)</label>
-            <div id="dropdown_menu">
-                <div class="autocomplete">
-                    <input class="autocomplete_input" onfocus="getInput(this)" id="source_input" type="text" name="source_input" placeholder="Choose Source">
-                </div>
-                <span id="source_error" style="display: none;">Not a valid selection. </span>
+    <div id="header">
+        <div id="profile_container">
+            <div id="profile_image_container">
             </div>
-            <label for="promotion_type">Promotion Type:</label>
-            <div id="dropdown_menu">
-                <select onchange="handlePromotionType()" name="promotion_type" id="promotion_type" required>
-                    <div id="dropdown_content">
-                        <option value="choose_type" selected>Choose Promotion Type</option>
-                        <option value="ads_and_content">Ads & Content</option>
-                        <option value="virtual_events">Virtual Events</option>
-                        <option value="live_events">Live Events</option>
-                        
+            <div id="profile_name_container">
+                <span id="profile_name"></span>
+            </div>
+        </div>
+        <div id="auth_buttons">
+            <button id="authorize_button" style="display: none;">Sign In</button>
+            <button id="signout_button" style="display: none;">Sign Out</button>
+        </div>
+    </div>
+    <div id="wrapper">
+        <div class="form_container" id="form_container" style="display: none;">
+            <form id="utm_form" autocomplete="off">
+                <label name="base_url" for="base_url">Base URL: (required)</label>
+                <input type="text" id="base_url" name="base_url" placeholder="https://getstream.io" required/>
+                <span id="url_error" style="display: none;">URL can't contain spaces or commas. </span>
+                <label name="search_term" for="search_term">Search Term: </label>
+                <input id="search_term" name="search_term" type="text" placeholder="Search Term" />
+                <label for="source">Source: (required)</label>
+                <div id="dropdown_menu">
+                    <div class="autocomplete">
+                        <input class="autocomplete_input" onfocus="getInput(this)" id="source_input" type="text" name="source_input" placeholder="Choose Source">
                     </div>
-                </select>
-                <span id="promotion_type_error" style="display: none;">Not a valid selection. </span>
-            </div>
-            <label for="medium">Medium: (required)</label>
-            <div id="dropdown_menu">
-                <div class="autocomplete">
-                    <input class="autocomplete_input" onfocus="getInput(this)" id="medium_input" type="text" name="source_input" placeholder="Choose Medium" disabled>
+                    <span id="source_error" style="display: none;">Not a valid selection. </span>
                 </div>
-            </div>
-            <label name="campaign_name" for="campaign_name">Campaign Name: (required)</label>
-            <input id="campaign_name" name="campaign_name" type="text" placeholder="Flutter Vikings" required/>
-            <label name="purpose" for="purpose">Purpose: (required)</label>
-            <input id="purpose" name="purpose" type="text" placeholder="Track # of clicks" required/>
-            <button id="submit_button" type="submit">Create UTM Link</button>
-        </form>
-    </div>
-    <div class="generated_url-container" id="generated_url-container" style="display: none;">
-        <h3>Generated URL:</h3>
-            <div id="generated_url-field">
-                <textarea id="url-string" readonly></textarea>
-            </div>
-            <div class="copy_clear-container">
-                <div class="copy_clear-buttons">
-                    <button id="copy" onclick="copyURL()">Copy</button>
+                <label for="promotion_type">Promotion Type:</label>
+                <div id="dropdown_menu">
+                    <select onchange="handlePromotionType()" name="promotion_type" id="promotion_type" required>
+                        <div id="dropdown_content">
+                            <option value="choose_type" selected>Choose Promotion Type</option>
+                            <option value="ads_and_content">Ads & Content</option>
+                            <option value="virtual_events">Virtual Events</option>
+                            <option value="live_events">Live Events</option>
+                            
+                        </div>
+                    </select>
+                    <span id="promotion_type_error" style="display: none;">Not a valid selection. </span>
                 </div>
-                <div class="copy_clear-buttons">
-                    <button id="clear" onclick="clearField()">Clear</button>
+                <label for="medium">Medium: (required)</label>
+                <div id="dropdown_menu">
+                    <div class="autocomplete">
+                        <input class="autocomplete_input" onfocus="getInput(this)" id="medium_input" type="text" name="source_input" placeholder="Choose Medium" disabled>
+                    </div>
                 </div>
-            </div>
+                <label name="campaign_name" for="campaign_name">Campaign Name: (required)</label>
+                <input id="campaign_name" name="campaign_name" type="text" placeholder="Flutter Vikings" required/>
+                <label name="purpose" for="purpose">Purpose: (required)</label>
+                <input id="purpose" name="purpose" type="text" placeholder="Track # of clicks" required/>
+                <button id="submit_button" type="submit">Create UTM Link</button>
+            </form>
+        </div>
+        <div class="generated_url-container" id="generated_url-container" style="display: none;">
+            <h3>Generated URL:</h3>
+                <div id="generated_url-field">
+                    <textarea id="url-string" readonly></textarea>
+                </div>
+                <div class="copy_clear-container">
+                    <div class="copy_clear-buttons">
+                        <button id="copy" onclick="copyURL()">Copy</button>
+                    </div>
+                    <div class="copy_clear-buttons">
+                        <button id="clear" onclick="clearField()">Clear</button>
+                    </div>
+                </div>
+        </div>
     </div>
     <div id="modal_container" class="modal_container">
         <div class="modal_content">
