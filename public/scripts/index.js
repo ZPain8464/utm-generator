@@ -7,7 +7,7 @@
  * > Strech goal: Add URL state to see real-time updates to URL
  * TODO: Some kind of confirmation animation so they know url is generated 
  * 
- * 
+ * TODO: Update medium and sources to erase underscores
  * TODO: Handle submitting with "Choose Promo Type" or "Choose Medium"
  */
 
@@ -148,7 +148,6 @@
       }
     });
 
-    // Other autocomplete functions here // 
     inp.addEventListener("keydown", function(e) {
       let x = document.getElementById("autocomplete-list");
       if (x) x = x.getElementsByTagName("div");
@@ -210,6 +209,12 @@ const getFormData = (event) => {
     const campaign = document.getElementById("campaign_name").value;
     const purpose = document.getElementById('purpose').value;
 
+    /**
+     * Check if base url is valid 
+     */
+
+    checkUrl(url);
+
     if (source === "Choose Source") {
       sourceError.style.display = "block";
       return;
@@ -223,11 +228,6 @@ const getFormData = (event) => {
     // }
 
     // mediumError.style.display = "none";
-
-    if (url.includes(" ") || url.includes(",")) {
-      urlError.style.display = "block";
-      return;
-    }
 
     const formData = {
         url, 
@@ -244,13 +244,12 @@ const form = document.getElementById("utm_form");
 form.addEventListener("submit", getFormData);
 
 const handleFormData = (f) => {
-    const baseUrl = getTLS(f.url);
+    const baseUrl = f.url;
     const sourceParam = handleSource(f.source);
     const campaignParam = handleCampaign(f.campaign);
     const mediumParam = handleMedium(f.medium);
     const termParam = handleTerm(f.searchTerm);
     const purpose = f.purpose;
-    console.log(baseUrl, sourceParam, campaignParam, mediumParam, termParam, purpose)
 
     if(termParam === null) {
         let urlString = baseUrl + '?' + sourceParam + '&' + campaignParam + '&' + mediumParam;
@@ -277,17 +276,26 @@ const resetForm = () => {
 }
 
 /**
+ * Form validation
+ */
+const checkUrl = (url) => {
+
+  if (url.includes(" ") || url.includes(",")) {
+    urlError.innerHTML = "URL can't contain spaces or commas.";
+    urlError.style.display = "block";
+    return false;
+  }
+
+  if(!url.includes("http://") || !url.includes("https://")) {
+    urlError.innerHTML = "URL must contain http:// or https://";
+    urlError.style.display = "block";
+    return false;
+  }
+}
+
+/**
  * Form Field Data
  */
-
-const getTLS = (url) => {
-    const tls = 'https://';
-    if(!url.includes(tls)) {
-        const tlsUrl = tls + url;
-        return tlsUrl;
-        }
-    return url;
-}
 
 const handleCampaign = (c) => {
   const words = c.split(' ');
