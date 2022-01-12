@@ -1,14 +1,12 @@
-// https://ga-dev-tools.web.app/campaign-url-builder/
 /**
  * TODO: Package into Chrome extension 
  * 
- * TODO: Handle space after entry in Term field
+ * TODO: Handle space after entries
+ * TODO: Handle special characters
  *
  * > Strech goal: Add URL state to see real-time updates to URL
  * TODO: Some kind of confirmation animation so they know url is generated 
  * 
- * TODO: Update medium and sources to erase underscores
- * TODO: Handle submitting with "Choose Promo Type" or "Choose Medium"
  */
 
  const authorizeButton = document.getElementById('authorize_button');
@@ -108,15 +106,26 @@
   async function autocomplete(inp) {
     const fields = await fetch(`/fields_data`).then((res) => res.json());
     let arr;
+
+    // Based on input, filter source and medium selection from API call
     if (inp.id === "source_input") {
-      arr = Object.values(fields.source);
+      const values =  Object.values(fields.source);
+      let removeUnderscores = values.map(v => {
+        return v.replace(/_/g, " ");
+      });
+      
+      arr = removeUnderscores;
     }
 
     const promoType = handlePromotionType();
     
     if (inp.id === "medium_input" && promoType != "Choose Type") {
       document.getElementById("medium_input").disabled = false;
-      arr = Object.values(fields[promoType]);
+      const values =  Object.values(fields[promoType]);
+      let removeUnderscores = values.map(v => {
+        return v.replace(/_/g, " ");
+      });
+      arr = removeUnderscores;
     }
 
     let currentFocus;
@@ -212,23 +221,18 @@ const getFormData = (event) => {
     /**
      * Check if base url is valid 
      */
-
-    checkUrl(url);
-
-    if (source === "Choose Source") {
-      sourceError.style.display = "block";
-      return;
+    if (url.includes(" ") || url.includes(",")) {
+      urlError.innerHTML = "URL can't contain spaces or commas.";
+      urlError.style.display = "block";
+      return false;
     }
-
-    sourceError.style.display = "none";
-
-    // if (medium === "Choose Medium") {
-    //   mediumError.style.display = "block";
-    //   return;
-    // }
-
-    // mediumError.style.display = "none";
-
+  
+    if(!url.includes("://")) {
+      urlError.innerHTML = "URL must contain http:// or https://";
+      urlError.style.display = "block";
+      return false;
+    }
+    
     const formData = {
         url, 
         source, 
@@ -245,30 +249,20 @@ form.addEventListener("submit", getFormData);
 
 const handleFormData = (f) => {
     const baseUrl = f.url;
-    const sourceParam = handleSource(f.source);
-    const campaignParam = handleCampaign(f.campaign);
-    const mediumParam = handleMedium(f.medium);
-    const termParam = handleTerm(f.searchTerm);
     const purpose = f.purpose;
-
-    if(termParam === null) {
-        let urlString = baseUrl + '?' + sourceParam + '&' + campaignParam + '&' + mediumParam;
+    const params = formatParams(f); 
+   console.log(baseUrl);
+    if(!params.hasOwnProperty("searchTerm")) {
+        let urlString = baseUrl + '?' + 'utm_source=' + params.source + '&' + 'utm_campaign=' + params.campaign + '&' + 'utm_medium=' + params.medium;
         const sheetData = {url: urlString, purpose: purpose};
         exportData(sheetData);
         return generateUrl(urlString);
     }
 
-    if(termParam === null) {
-        let urlString = baseUrl + '?' + sourceParam + '&' + campaignParam + '&' + mediumParam
-        const sheetData = {url: urlString, purpose: purpose};
-        exportData(sheetData);
-        return generateUrl(urlString); 
-    }
-
-    let urlString = baseUrl + '?' + sourceParam + '&' + campaignParam + '&' + mediumParam + '&' + termParam;
+    let urlString = baseUrl + '?' + 'utm_source=' + params.source + '&' + 'utm_campaign=' + params.campaign + '&' + 'utm_medium=' + params.medium + '&' + 'utm_term=' + params.searchTerm;
     const sheetData = {url: urlString, purpose: purpose};
     exportData(sheetData);
-    generateUrl(urlString);
+    return generateUrl(urlString);
 } 
 
 const resetForm = () => {
@@ -276,62 +270,69 @@ const resetForm = () => {
 }
 
 /**
- * Form validation
- */
-const checkUrl = (url) => {
-
-  if (url.includes(" ") || url.includes(",")) {
-    urlError.innerHTML = "URL can't contain spaces or commas.";
-    urlError.style.display = "block";
-    return false;
-  }
-
-  if(!url.includes("http://") || !url.includes("https://")) {
-    urlError.innerHTML = "URL must contain http:// or https://";
-    urlError.style.display = "block";
-    return false;
-  }
-}
-
-/**
  * Form Field Data
  */
 
-const handleCampaign = (c) => {
-  const words = c.split(' ');
-  for (let i = 0; i < words.length; i++) {
-     words[i] = words[i][0].toUpperCase() + words[i].substr(1);
-  }
-  const addCaps = words.join(" ");
-    const formatData = addCaps.replace(/ /g, "_");
-    const parameter =  'utm_campaign=' + formatData;
-    return parameter;
-}
+const formatParams = (f) => {
+  let params = [];
+  delete f.purpose;
+  delete f.url;
+  if (f.searchTerm === "") {
+    delete f.searchTerm;
+    let {source, medium, campaign} = f;
+    params.push(source, medium, campaign);
+    let paramKeys = Object.keys(f);
 
-const handleSource = (s) => { 
-    const formatData = s.replace(/ /g, "_");
-    const parameter =  'utm_source=' + formatData;
-    return parameter;
-}
-
-const handleMedium = (m) => {
-    const formatData = m.replace(/ /g, "_");
-    const parameter =  'utm_medium=' + formatData;
-    return parameter;
-}
-
-const handleTerm = (t) => {
-    if(t === "") {
-        return null;
+    // Capitalize parameters
+    let capitalizedParams = params.map(p => {
+    const words = p.split(' ');
+    for (let i = 0; i < words.length; i++) {
+       words[i] = words[i][0].toUpperCase() + words[i].substr(1);
     }
-    const words = t.split(' ');
-  for (let i = 0; i < words.length; i++) {
-     words[i] = words[i][0].toUpperCase() + words[i].substr(1);
+    let addCaps = words.join(" ");
+    return addCaps;
+  });
+  
+  // Replace spaces with underscores
+  let reformattedParam = capitalizedParams.map(cp => {
+    let addUnderscores = cp.replace(/ /g, "_");
+    return addUnderscores
+  });
+
+  let reformattedParams = {};
+  for (let i = 0; i < paramKeys.length; i++) {
+    reformattedParams[paramKeys[i]] = reformattedParam[i]
   }
-  const addCaps = words.join(" ");
-    const formatData = addCaps.replace(/ /g, "_");
-    const parameter =  'utm_term=' + formatData
-    return parameter;
+  
+  return reformattedParams;
+  };
+
+  let {campaign, searchTerm, medium, source} = f;
+  params.push(source, searchTerm, medium, campaign);
+  let paramKeys = Object.keys(f);
+
+  // Capitalize parameters
+  let capitalizedParams = params.map(p => {
+    const words = p.split(' ');
+    for (let i = 0; i < words.length; i++) {
+       words[i] = words[i][0].toUpperCase() + words[i].substr(1);
+    }
+    let addCaps = words.join(" ");
+    return addCaps;
+  });
+  
+  // Replace spaces with underscores
+  let reformattedParam = capitalizedParams.map(cp => {
+    let addUnderscores = cp.replace(/ /g, "_");
+    return addUnderscores
+  });
+
+  let reformattedParams = {};
+  for (let i = 0; i < paramKeys.length; i++) {
+    reformattedParams[paramKeys[i]] = reformattedParam[i]
+  }
+
+  return reformattedParams;
 }
 
 /** 
