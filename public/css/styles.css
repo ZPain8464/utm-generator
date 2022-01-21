@@ -83,7 +83,8 @@
   }
 
   .form_container {
-    width: 500px;
+    /* width: 500px; */
+    width: 450px;
     margin: 0 auto;
     background-color: #B2BCC5;
     color: #495057;

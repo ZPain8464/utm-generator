@@ -11,7 +11,8 @@
       "client_id": "664247190446-dt485oibkgmco1bkhnobmd4i9an9a6lb.apps.googleusercontent.com",
       "scopes": [
         "email",
-        "profile"
+        "profile",
+        "https://www.googleapis.com/auth/spreadsheets"
       ]
     },
     "permissions": ["identity", "identity.email"],

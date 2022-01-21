@@ -1,22 +1,24 @@
-
-const authorizeButton = document.getElementById('authorize_button');
-const signoutButton = document.getElementById('signout_button');
-const formField = document.getElementById("form_container");
-const urlField = document.getElementById("generated_url-container");
-const exportButton = document.getElementById("export_utm_button");
-const editUTMButton = document.getElementById("edit_utm_button");
-const sourceError = document.getElementById('source_error');
-const promoError = document.getElementById("promotion_type_error");
-const urlError = document.getElementById("url_error");
-const profileInfo = document.getElementById("profile_container");
-
 /**
  * Onload login with Google OAuth2.0
  */
 
 window.onload = function() {
+  
+  const authorizeButton = document.getElementById('authorize_button');
+  const signoutButton = document.getElementById('signout_button');
+  const formField = document.getElementById("form_container");
+  const urlField = document.getElementById("generated_url-container");
+  const exportButton = document.getElementById("export_utm_button");
+  const editUTMButton = document.getElementById("edit_utm_button");
+  const sourceError = document.getElementById('source_error');
+  const promoError = document.getElementById("promotion_type_error");
+  const urlError = document.getElementById("url_error");
+  const profileInfo = document.getElementById("profile_container");
+  document.getElementById("promotion_type").setAttribute("disabled", "disabled");
+
   document.getElementById('authorize_button').addEventListener('click', async function() {    
     chrome.identity.getAuthToken({interactive: true}, function(token) {
+      localStorage.setItem("token", token);
       fetch(`https://www.googleapis.com/oauth2/v1/userinfo?access_token=${token}`)
       .then((res) => res.json())
       .then((profileData) => {
@@ -27,33 +29,37 @@ window.onload = function() {
       })
     });
   });
-};
 
   const getUser = async (pd) => {
+    const email = pd.email;
     const name = pd.name;
     const imageUrl = pd.picture
     document.getElementById("profile_image_container").style.backgroundImage =`url(${imageUrl})`;
     document.getElementById("profile_name").innerHTML = `${name}`;
+
+    localStorage.setItem("email", email);
+    localStorage.setItem("name", name);
   }
 
-  // DROPDOWN LIST FUNCTIONS // 
-  
-  const handlePromotionType = () => {
-    const promoType = document.getElementById("promotion_type").value;
-
-    if (promoType === "choose_type") {
+  function handlePromoType() {
+    
+    let promoType = document.getElementById("promotion_type").value;
+    console.log(promoType);
+    if (promoType.innerHTML === "choose_type") {
+      
       document.getElementById("medium_input").setAttribute("disabled", "disabled");
-      return
+      return promoType;
     }
     document.getElementById("medium_input").removeAttribute("disabled");
     promoError.style.display = "none";
-    return promoType;
     
+    return promoType;
   }
+  document.getElementById("promotion_type").addEventListener("change", handlePromoType);
 
   // AUTOCOMPLETE //
   async function autocomplete(inp) {
-    const fields = await fetch(`/fields_data`).then((res) => res.json());
+    const fields = await fetch(`http://localhost:3000/fields_data`).then((res) => res.json());
     let arr;
 
     // Based on input, filter source and medium selection from API call
@@ -62,14 +68,13 @@ window.onload = function() {
       let removeUnderscores = values.map(v => {
         return v.replace(/_/g, " ");
       });
-      
       arr = removeUnderscores;
     }
 
-    const promoType = handlePromotionType();
+    document.getElementById("promotion_type").removeAttribute("disabled");
+    let promoType = document.getElementById("promotion_type").value;
     
-    if (inp.id === "medium_input" && promoType != "Choose Type") {
-      document.getElementById("medium_input").disabled = false;
+    if (inp.id === "medium_input" && promoType != "choose_type") {
       const values =  Object.values(fields[promoType]);
       let removeUnderscores = values.map(v => {
         return v.replace(/_/g, " ");
@@ -78,6 +83,7 @@ window.onload = function() {
     }
 
     let currentFocus;
+
 
     inp.addEventListener("input", function(e) {
       let a, b, i, val = this.value;
@@ -150,15 +156,19 @@ window.onload = function() {
   }
 
   // Retrieves source or medium input id
-  const getInput = (input) => {
-    autocomplete(document.getElementById(input.id));
-  }
+  document.getElementById("source_input").addEventListener("focus", () => {
+    autocomplete(document.getElementById("source_input"));
+  });
+  document.getElementById("medium_input").addEventListener("focus", () => {
+    autocomplete(document.getElementById("medium_input"));
+  });
 
   /**
    * Form Field functions 
    */
 
 const getFormData = (event) => {
+  console.log("getformdata ran")
     event.preventDefault();
     const url = document.getElementById("base_url").value;
     const source = document.getElementById("source_input").value;
@@ -223,6 +233,7 @@ const resetForm = () => {
  */
 
 const formatParams = (f) => {
+  console.log(f);
   let params = [];
   delete f.purpose;
   delete f.url;
@@ -289,9 +300,8 @@ const formatParams = (f) => {
 */
 
 const exportData = async (data) => {
-  const currentUser = gapi.auth2.getAuthInstance().currentUser.get();
-  const name = currentUser.getBasicProfile().getName();
-  const email = currentUser.getBasicProfile().getEmail();
+  const email = localStorage.getItem("email");
+  const name = localStorage.getItem("name");
   const purpose = data.purpose;
   const url = data.url;
   const getDate = new Date();
@@ -318,8 +328,23 @@ const exportData = async (data) => {
     "majorDimension": "ROWS",
     'values': values
   }
+  const token = localStorage.getItem("token");
+  
+  let init = {
+    method: 'PUT',
+    async: true,
+    body: JSON.stringify(params),
+    headers: {
+        "Authorization": 'Bearer ' + token,
+        "Content-Type": 'application/json'
+    },
+    contentType: 'json',
+};
 
-  let request = gapi.client.sheets.spreadsheets.values.append(params, valueRangeBody);
+  const sheetsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${params.spreadsheetId}/${values}/${params.range}:append?valueInputOption=${params.valueInputOption}&key=`
+
+  let request = fetch(sheetsUrl, init);
+  // let request = gapi.client.sheets.spreadsheets.values.append(params, valueRangeBody);
   request.then(function(res) {
       console.log(res.result);
     }, function(reason) {
@@ -360,4 +385,6 @@ const clearField = () => {
     if(urlString.hasChildNodes) {
         urlString.innerHTML = "";
     }
+}
+
 }

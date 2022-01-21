@@ -34,13 +34,13 @@
                 <label for="source">Source: (required)</label>
                 <div id="dropdown_menu">
                     <div class="autocomplete">
-                        <input class="autocomplete_input" onfocus="getInput(this)" id="source_input" type="text" name="source_input" placeholder="Choose Source" required>
+                        <input class="autocomplete_input" id="source_input" type="text" name="source_input" placeholder="Choose Source" required>
                     </div>
                     <span id="source_error" style="display: none;">Not a valid selection. </span>
                 </div>
                 <label for="promotion_type">Promotion Type:</label>
                 <div id="dropdown_menu">
-                    <select onchange="handlePromotionType()" name="promotion_type" id="promotion_type" required>
+                    <select name="promotion_type" id="promotion_type" required>
                         <div id="dropdown_content">
                             <option value="choose_type" selected>Choose Promotion Type</option>
                             <option value="ads_and_content">Ads & Content</option>
@@ -54,7 +54,7 @@
                 <label for="medium">Medium: (required)</label>
                 <div id="dropdown_menu">
                     <div class="autocomplete">
-                        <input class="autocomplete_input" onfocus="getInput(this)" id="medium_input" type="text" name="source_input" placeholder="Choose Medium" disabled required>
+                        <input class="autocomplete_input" id="medium_input" type="text" name="source_input" placeholder="Choose Medium" disabled required>
                     </div>
                 </div>
                 <label name="campaign_name" for="campaign_name">Campaign Name: (required)</label>
@@ -79,10 +79,5 @@
                 </div>
         </div>
     </div>
-    <!-- <script src="../scripts/index.js"></script> -->
-    <!-- <script async defer src="https://apis.google.com/js/api.js"
-      onload="this.onload=function(){};handleClientLoad()"
-      onreadystatechange="if (this.readyState === 'complete') this.onload()">
-    </script> -->
 </body>
 </html>
