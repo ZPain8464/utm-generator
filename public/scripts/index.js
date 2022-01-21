@@ -1,91 +1,40 @@
+
+const authorizeButton = document.getElementById('authorize_button');
+const signoutButton = document.getElementById('signout_button');
+const formField = document.getElementById("form_container");
+const urlField = document.getElementById("generated_url-container");
+const exportButton = document.getElementById("export_utm_button");
+const editUTMButton = document.getElementById("edit_utm_button");
+const sourceError = document.getElementById('source_error');
+const promoError = document.getElementById("promotion_type_error");
+const urlError = document.getElementById("url_error");
+const profileInfo = document.getElementById("profile_container");
+
 /**
- * TODO: Package into Chrome extension 
- * 
- * TODO: Handle space after entries
- * TODO: Handle special characters
- *
- * > Strech goal: Add URL state to see real-time updates to URL
- * TODO: Some kind of confirmation animation so they know url is generated 
- * 
+ * Onload login with Google OAuth2.0
  */
 
- const authorizeButton = document.getElementById('authorize_button');
- const signoutButton = document.getElementById('signout_button');
- const formField = document.getElementById("form_container");
- const urlField = document.getElementById("generated_url-container");
- const exportButton = document.getElementById("export_utm_button");
- const editUTMButton = document.getElementById("edit_utm_button");
- const sourceError = document.getElementById('source_error');
- const promoError = document.getElementById("promotion_type_error");
- const urlError = document.getElementById("url_error");
- const profileInfo = document.getElementById("profile_container");
-
- /**
-  * Google Sign-In
-  */
-
- const handleClientLoad = () => {
-    gapi.load('client:auth2', initClient);
-  }
-
-  const initClient = async () => {
-    const DISCOVERY_DOCS = ["https://sheets.googleapis.com/$discovery/rest?version=v4"]
-    const credentials = await fetch(`/googleauth`).then((res) => res.json());
-
-    gapi.client.init({
-      apiKey: credentials.API_KEY,
-      clientId: credentials.CLIENT_ID,
-      discoveryDocs: DISCOVERY_DOCS,
-      scope: credentials.SCOPES
-    }).then(function () {
-      gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
-
-      updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
-      authorizeButton.onclick = handleAuthClick;
-      signoutButton.onclick = handleSignoutClick;
-    }, function(error) {
-       console.log(error)
+window.onload = function() {
+  document.getElementById('authorize_button').addEventListener('click', async function() {    
+    chrome.identity.getAuthToken({interactive: true}, function(token) {
+      fetch(`https://www.googleapis.com/oauth2/v1/userinfo?access_token=${token}`)
+      .then((res) => res.json())
+      .then((profileData) => {
+        document.getElementById('authorize_button').style.display = "none";
+        document.getElementById("form_container").style.display = "block";
+        document.getElementById("generated_url-container").style.display = "block";
+        getUser(profileData);
+      })
     });
-  }
+  });
+};
 
-  function updateSigninStatus(isSignedIn) {
-    if (isSignedIn) {
-      profileInfo.style.display = "inline-flex";
-      authorizeButton.style.display = 'none';
-      signoutButton.style.display = 'block';
-      formField.style.display = "block";
-      urlField.style.display = "block";
-      getUser();
-    } else {
-      authorizeButton.style.display = 'block';
-      signoutButton.style.display = 'none';
-    }
-  }
-
-  function handleAuthClick(event) {
-    gapi.auth2.getAuthInstance().signIn();
-  }
-
-  function handleSignoutClick(event) {
-    gapi.auth2.getAuthInstance().signOut();
-    resetForm();
-    const urlString = document.getElementById("url-string");
-    if(urlString.hasChildNodes) {
-        urlString.innerHTML = "";
-    }
-    formField.style.display = "none";
-    urlField.style.display = "none";
-    profileInfo.style.display = "none";
-  }
-
-  const getUser = async () => {
-    const currentUser = await gapi.auth2.getAuthInstance().currentUser.get();
-    const name = currentUser.getBasicProfile().getName();
-    const imageUrl = currentUser.getBasicProfile().getImageUrl();
+  const getUser = async (pd) => {
+    const name = pd.name;
+    const imageUrl = pd.picture
     document.getElementById("profile_image_container").style.backgroundImage =`url(${imageUrl})`;
     document.getElementById("profile_name").innerHTML = `${name}`;
   }
-
 
   // DROPDOWN LIST FUNCTIONS // 
   

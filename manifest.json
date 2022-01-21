@@ -1,0 +1,21 @@
+{
+    "name": "DevRel UTM Link Generator",
+    "description": "Quickly generate utm tracking links",
+    "version": "1.0",
+    "manifest_version": 3,
+    "action": {
+      "default_popup": "public/main/index.html"
+    },
+    "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuPT0gRXlOSvs0lDibtt1xidB+DwSHgliufPBHy351XXb8FRbu+9RLWDU+K8QkXeOQKM3sIOwjK+x+zK5JPEjMyBpmpEe/GocmrG9GrSD10Cl4DRW496MrD5MnO2AY9JjVtSqBY4UY5+nWCyoh5mmfO9yoyomcEBFC7SGJ1DhjZTc7lsAS4zZFldJZtrQvFA3tN3oTy+w4yl5UB6qwRXYaie34dt/FjGtXdtIgKp5nACYVcQubUE/IZoDk4XpkdzY1YisULxI6CCYj3dcMMyyRp8cPMtiuRiwAgy4t07px7+G8kc9JYHWWSGGhxHfTx8DvsE+IdhdH5O4WhgNOvifgQIDAQAB",
+    "oauth2": {
+      "client_id": "664247190446-dt485oibkgmco1bkhnobmd4i9an9a6lb.apps.googleusercontent.com",
+      "scopes": [
+        "email",
+        "profile"
+      ]
+    },
+    "permissions": ["identity", "identity.email"],
+    "background": {
+      "service_worker": "background.js"
+    }
+}
