@@ -2,7 +2,7 @@
  * Onload login with Google OAuth2.0
  */
 
-window.onload = function() {
+window.onload = async function() {
   
   const authorizeButton = document.getElementById('authorize_button');
   const signoutButton = document.getElementById('signout_button');
@@ -18,7 +18,6 @@ window.onload = function() {
 
   document.getElementById('authorize_button').addEventListener('click', async function() {    
     chrome.identity.getAuthToken({interactive: true}, function(token) {
-      localStorage.setItem("token", token);
       fetch(`https://www.googleapis.com/oauth2/v1/userinfo?access_token=${token}`)
       .then((res) => res.json())
       .then((profileData) => {
@@ -26,7 +25,7 @@ window.onload = function() {
         document.getElementById("form_container").style.display = "block";
         document.getElementById("generated_url-container").style.display = "block";
         getUser(profileData);
-      })
+      });
     });
   });
 
@@ -210,7 +209,7 @@ const handleFormData = (f) => {
     const baseUrl = f.url;
     const purpose = f.purpose;
     const params = formatParams(f); 
-   console.log(baseUrl);
+   
     if(!params.hasOwnProperty("searchTerm")) {
         let urlString = baseUrl + '?' + 'utm_source=' + params.source + '&' + 'utm_campaign=' + params.campaign + '&' + 'utm_medium=' + params.medium;
         const sheetData = {url: urlString, purpose: purpose};
@@ -224,16 +223,11 @@ const handleFormData = (f) => {
     return generateUrl(urlString);
 } 
 
-const resetForm = () => {
-  document.getElementById('utm_form').reset();
-}
-
 /**
  * Form Field Data
  */
 
 const formatParams = (f) => {
-  console.log(f);
   let params = [];
   delete f.purpose;
   delete f.url;
@@ -307,84 +301,49 @@ const exportData = async (data) => {
   const getDate = new Date();
   const date = getDate.toLocaleDateString();
 
-  let values = [
-    [
-      name,
-      email,
-      date,
-      purpose,
-      url
-    ]
-  ];
-
-  const params = {
-    spreadsheetId: '1qNGvs-V-EOgpuWprdABIGRaZASLihNc0GKX6kVZmBIU',
-    range: `UTM Link Tracking Sheet!A2:E2`,
-    valueInputOption: 'RAW',
-    insertDataOption: 'INSERT_ROWS',
-  };
-
-  const valueRangeBody = {
-    "majorDimension": "ROWS",
-    'values': values
+  let vals = {
+    name,
+    email,
+    date,
+    purpose,
+    url
   }
-  const token = localStorage.getItem("token");
-  
-  let init = {
-    method: 'PUT',
-    async: true,
-    body: JSON.stringify(params),
-    headers: {
-        "Authorization": 'Bearer ' + token,
-        "Content-Type": 'application/json'
-    },
-    contentType: 'json',
-};
-
-  const sheetsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${params.spreadsheetId}/${values}/${params.range}:append?valueInputOption=${params.valueInputOption}&key=`
-
-  let request = fetch(sheetsUrl, init);
-  // let request = gapi.client.sheets.spreadsheets.values.append(params, valueRangeBody);
-  request.then(function(res) {
-      console.log(res.result);
-    }, function(reason) {
-      console.error('error: ', + reason.result.error.message);
-  })
+  chrome.runtime.sendMessage(vals);
 }
 
 /**
  * Button Functions
  */
 
-const generateUrl = (url) => {
-    if (url === "https://") {
-        return;
-    }
+  const generateUrl = (url) => {
+      if (url === "https://") {
+          return;
+      }
 
-    const p = document.getElementById("url-string");
+      const p = document.getElementById("url-string");
 
-    if (p.childNodes.length > 0) {
-        p.innerHTML = "";
-        const text = document.createTextNode(url);
-        p.appendChild(text);
-        return;
-    } 
-    const text = document.createTextNode(url);
-    p.appendChild(text);   
-}
+      if (p.childNodes.length > 0) {
+          p.innerHTML = "";
+          const text = document.createTextNode(url);
+          p.appendChild(text);
+          return;
+      } 
+      const text = document.createTextNode(url);
+      p.appendChild(text);   
+  }
 
-const copyURL = () => {
+  document.getElementById("copy").addEventListener("click", function() {
     const copyText = document.getElementById("url-string");
     copyText.select();
     document.execCommand('copy');
     alert("Copied the text: " + copyText.value);
-}
+  });
 
-const clearField = () => {
+  document.getElementById("clear").addEventListener("click", function() {
     const urlString = document.getElementById("url-string");
-    if(urlString.hasChildNodes) {
-        urlString.innerHTML = "";
-    }
-}
+      if(urlString.hasChildNodes) {
+          urlString.innerHTML = "";
+      }
+  })
 
 }
