@@ -25,8 +25,14 @@ app.get("/", (req, res) => {
 })
 
 app.get('/apps_script', (req, res) => {
-    const sheetsUrl = process.env.SHEETS_URL_TESTING;
-    res.status(200).json(sheetsUrl);
+    if (NODE_ENV === "development") {
+        const sheetsUrl = process.env.SHEETS_URL_TESTING;
+        res.status(200).json(sheetsUrl);
+    }
+    if (NODE_ENV === "production") { 
+        const sheetsUrl = process.env.SHEETS_URL_PROD;
+        res.status(200).json(sheetsUrl);
+    }
 })
 
 app.get('/fields_data', async (req, res) => {

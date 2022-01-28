@@ -3,7 +3,7 @@ chrome.action.onClicked.addListener(function() {
   });
 
 chrome.runtime.onMessage.addListener(async function(message) {
-  const sheetsUrl = await fetch(`http://localhost:3000/apps_script`).then((res) => res.json());
+  const sheetsUrl = await fetch(`https://devrel-utm-generator-server.herokuapp.com/apps_script`).then((res) => res.json());
   
   let init = {
     method: 'POST',
