@@ -18,6 +18,9 @@ window.onload = async function() {
 
   document.getElementById('authorize_button').addEventListener('click', async function() {    
     chrome.identity.getAuthToken({interactive: true}, function(token) {
+      fetch(`https://devrel-utm-generator-server.herokuapp.com/`).then((res) => res.json())
+      .then((data) => console.log(data));
+      
       fetch(`https://www.googleapis.com/oauth2/v1/userinfo?access_token=${token}`)
       .then((res) => res.json())
       .then((profileData) => {

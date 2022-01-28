@@ -20,6 +20,10 @@ app.use(bodyParser.json({
     .use(express.urlencoded())
     .use(express.static('public'));
 
+app.get("/", (req, res) => {
+    console.log("hello, you hit the utm gen server");
+})
+
 app.get('/apps_script', (req, res) => {
     const sheetsUrl = process.env.SHEETS_URL_TESTING;
     res.status(200).json(sheetsUrl);
