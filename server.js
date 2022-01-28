@@ -48,5 +48,5 @@ app.get('/fields_data', async (req, res) => {
 
 app.listen(PORT, () => {
     console.log(NODE_ENV);
-    console.log(`server running successfully`);
+    console.log(`server running successfully: ${NODE_ENV}`);
 });
