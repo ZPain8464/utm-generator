@@ -21,18 +21,20 @@ app.use(bodyParser.json({
     .use(express.static('public'));
 
 app.get("/", (req, res) => {
-    console.log("hello, you hit the utm gen server");
+    const message = "endpoint hit"
+    res.status(200).json({message});
 })
 
 app.get('/apps_script', (req, res) => {
     if (NODE_ENV === "development") {
         const sheetsUrl = process.env.SHEETS_URL_TESTING;
-        res.status(200).json(sheetsUrl);
+        res.status(200).json({sheetsUrl});
     }
     if (NODE_ENV === "production") { 
         const sheetsUrl = process.env.SHEETS_URL_PROD;
-        res.status(200).json(sheetsUrl);
+        res.status(200).json({sheetsUrl});
     }
+    
 })
 
 app.get('/fields_data', async (req, res) => {
@@ -47,6 +49,5 @@ app.get('/fields_data', async (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(NODE_ENV);
-    console.log(`server running successfully: ${NODE_ENV}`);
+    console.log(`server running successfully`);
 });
